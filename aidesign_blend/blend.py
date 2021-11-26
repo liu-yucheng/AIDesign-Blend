@@ -7,7 +7,6 @@ import copy
 import pkg_resources
 import sys
 
-# private attributes
 
 # Init _version
 _version = "<unknown version>"
@@ -17,24 +16,15 @@ if len(_packages) > 0:
 
 _brief_usage = "blend <command> ..."
 _usage = str(
-    "Usage: {}\n"
+    "Usage: " f"{_brief_usage}" "\n"
     "Help: blend help"
-).format(_brief_usage)
-
-# end of private attributes
-# nominal info strings
+)
 
 info = str(
-    "AIDesign-Blend (aidesign-blend) {}\n"
-    "{}\n"
-).format(
-    _version,
-    _usage
+    "AIDesign-Blend (aidesign-blend) " f"{_version}" "\n"
+    f"{_usage}" "\n"
 )
 """The primary info to display."""
-
-# end of nominal info strings
-# error info strings
 
 unknown_command_info = str(
     "\"" f"{_brief_usage}" "\" gets an unknown command: {}\n"
@@ -48,13 +38,8 @@ unknown_arg_info = str(
 )
 """The info to display when the executable gets an unknown argument."""
 
-# end of rror info strings
-# other public attributes
-
 argv_copy = None
 """A consumable copy of sys.argv."""
-
-# end of other public attributes
 
 
 def _run_command():
@@ -67,9 +52,34 @@ def _run_command():
     elif command[0] == "-":
         print(unknown_arg_info.format(command), end="")
         exit(1)
-    else:
+    elif command == "create":
+        from aidesign_blend import blend_create
+        blend_create.argv_copy = argv_copy
+        blend_create.run()
+    elif command == "status":
+        from aidesign_blend import blend_status
+        blend_status.argv_copy = argv_copy
+        blend_status.run()
+    elif command == "help":
+        from aidesign_blend import blend_help
+        blend_help.argv_copy = argv_copy
+        blend_help.run()
+    elif command == "project":
+        from aidesign_blend import blend_project
+        blend_project.argv_copy = argv_copy
+        blend_project.run()
+    elif command == "frags":
+        from aidesign_blend import blend_frags
+        blend_frags.argv_copy = argv_copy
+        blend_frags.run()
+    elif command == "reset":
+        from aidesign_blend import blend_reset
+        blend_reset.argv_copy = argv_copy
+        blend_reset.run()
+    else:  # elif ! command is unknown !:
         print(unknown_command_info.format(command), end="")
         exit(1)
+    # end if
 
 
 def main():

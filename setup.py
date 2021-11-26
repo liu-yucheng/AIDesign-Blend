@@ -16,7 +16,7 @@ import shutil
 def main():
     setuptools.setup(
         name="aidesign-blend",
-        version="0.1.0",
+        version="0.2.0",
         description="AIDesign Image Fragments Blending Application",
         author="The AIDesign Team",
         packages=setuptools.find_packages(),
@@ -31,8 +31,11 @@ def main():
     # Initialize app data with the defaults if necessary
     from aidesign_blend import defaults
     app_data_path = defaults.app_data_path
+
     if not os.path.exists(app_data_path):
         shutil.copytree(defaults.default_app_data_path, app_data_path)
+    else:  # elif os.path.exists(app_data_path):
+        print("App data already exists")
 
     print("App data is at: {}".format(app_data_path))
     print("Commands available: blend")

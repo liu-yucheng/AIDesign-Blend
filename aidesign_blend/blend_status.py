@@ -50,9 +50,9 @@ def run():
         blend_start_status_dict = utils.load_json(defaults.blend_start_status_loc)
 
         tab_width = 4
+        tab1 = " " * tab_width
         blend_start_lines = []
         for key in blend_start_status_dict:
-            tab1 = " " * tab_width
             tab2_width = (2 * tab_width)
             tab2_width = tab2_width - len(key) % tab2_width
             tab2 = " " * tab2_width

@@ -6,7 +6,10 @@
 import asyncio
 import json
 import sys
+import typing
 import threading
+
+_IO = typing.IO
 
 
 class TimedInput:
@@ -80,3 +83,27 @@ def save_json(from_dict, to_file):
     file = open(to_file, "w+")
     json.dump(from_dict, file, indent=4)
     file.close()
+
+
+def logstr(logs, string=""):
+    """Logs a string on the log file objects.
+
+    Args:
+        logs: the log file objects
+        string: the string to log
+    """
+    for log in logs:
+        log: _IO
+        log.write(string)
+
+
+def logln(logs, line=""):
+    """Logs a line on the log file objects.
+
+    Args:
+        logs: the log file objects
+        line: the line to log
+    """
+    for log in logs:
+        log: _IO
+        log.write(line + "\n")

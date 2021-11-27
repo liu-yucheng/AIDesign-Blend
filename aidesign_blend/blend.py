@@ -76,6 +76,10 @@ def _run_command():
         from aidesign_blend import blend_reset
         blend_reset.argv_copy = argv_copy
         blend_reset.run()
+    elif command == "start":
+        from aidesign_blend import blend_start
+        blend_start.argv_copy = argv_copy
+        blend_start.run()
     else:  # elif ! command is unknown !:
         print(unknown_command_info.format(command), end="")
         exit(1)

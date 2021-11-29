@@ -17,11 +17,12 @@ default_app_data_path = _join(default_configs_path, "app_data")
 """Default app data path."""
 default_blend_project_path = _join(default_configs_path, "blend_project")
 """Default blend project path."""
+default_frags_path = _join(default_configs_path, "default_frags")
+"""Default fragments path"""
 
 app_data_path = _join(_repo_path, ".aidesign_blend_app_data")
 """App data path."""
 blend_start_status_loc = _join(app_data_path, "blend_start_status.json")
 """Blend start status location."""
-
-blend_start_config_name = "blend_start_config.json"
-"""Blend start config name."""
+blenders_config_name = "blenders_config.json"
+"""Blenders config name."""

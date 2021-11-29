@@ -77,9 +77,9 @@ def run():
             print(proj_is_not_dir_info.format(path_to_proj), end="")
             exit(1)
 
-        blend_start_status_dict = utils.load_json(defaults.blend_start_status_loc)
-        blend_start_status_dict["project_path"] = path_to_proj
-        utils.save_json(blend_start_status_dict, defaults.blend_start_status_loc)
+        blend_start_status = utils.load_json(defaults.blend_start_status_loc)
+        blend_start_status["project_path"] = path_to_proj
+        utils.save_json(blend_start_status, defaults.blend_start_status_loc)
 
         print(info.format(path_to_proj), end="")
         exit(0)

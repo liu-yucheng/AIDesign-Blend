@@ -10,6 +10,7 @@ import os
 import sys
 import traceback
 
+from aidesign_blend import blenders
 from aidesign_blend import defaults
 from aidesign_blend import utils
 
@@ -98,7 +99,9 @@ def _start_session():
     utils.logln(all_logs, "-")
 
     try:
-        pass
+        blender = blenders.Blender(frags_path, proj_path, all_logs, 1)
+        blender.prep()
+        blender.blend()
     except BaseException as base_exception:
         utils.logstr(all_logs, traceback.format_exc())
         end_time = datetime.datetime.now()
@@ -127,10 +130,10 @@ def run():
     argv_copy_length = len(argv_copy)
     assert argv_copy_length >= 0
     if argv_copy_length == 0:
-        blend_start_status_dict = utils.load_json(defaults.blend_start_status_loc)
+        blend_start_status = utils.load_json(defaults.blend_start_status_loc)
 
-        frags_path = blend_start_status_dict["frags_path"]
-        proj_path = blend_start_status_dict["project_path"]
+        frags_path = blend_start_status["frags_path"]
+        proj_path = blend_start_status["project_path"]
 
         if frags_path is None:
             print(none_frags_info, end="")
@@ -143,11 +146,11 @@ def run():
         tab1 = " " * tab_width
         blend_start_info = ""
         blend_start_lines = []
-        for key in blend_start_status_dict:
+        for key in blend_start_status:
             tab2_width = 2 * tab_width
             tab2_width = tab2_width - len(key) % tab2_width
             tab2 = " " * tab2_width
-            val = blend_start_status_dict[key]
+            val = blend_start_status[key]
             line = str(
                 f"{tab1}" "{}:" f"{tab2}" "{}"
             ).format(

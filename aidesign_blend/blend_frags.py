@@ -77,9 +77,9 @@ def run():
             print(frags_are_not_dir_info.format(path_to_frags), end="")
             exit(1)
 
-        blend_start_status_dict = utils.load_json(defaults.blend_start_status_loc)
-        blend_start_status_dict["frags_path"] = path_to_frags
-        utils.save_json(blend_start_status_dict, defaults.blend_start_status_loc)
+        blend_start_status = utils.load_json(defaults.blend_start_status_loc)
+        blend_start_status["frags_path"] = path_to_frags
+        utils.save_json(blend_start_status, defaults.blend_start_status_loc)
 
         print(info.format(path_to_frags), end="")
         exit(0)

@@ -1,0 +1,8 @@
+{
+    "manual_seed": null,
+    "random_frags": false,
+    "random_flipping": false,
+    "frag_resolution": 64,
+    "x_frag_count": 2,
+    "y_frag_count": 2
+}

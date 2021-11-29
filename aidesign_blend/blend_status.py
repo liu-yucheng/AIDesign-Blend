@@ -47,16 +47,16 @@ def run():
         app_data_info = defaults.app_data_path
         blend_start_info = ""
 
-        blend_start_status_dict = utils.load_json(defaults.blend_start_status_loc)
+        blend_start_status = utils.load_json(defaults.blend_start_status_loc)
 
         tab_width = 4
         tab1 = " " * tab_width
         blend_start_lines = []
-        for key in blend_start_status_dict:
+        for key in blend_start_status:
             tab2_width = (2 * tab_width)
             tab2_width = tab2_width - len(key) % tab2_width
             tab2 = " " * tab2_width
-            val = blend_start_status_dict[key]
+            val = blend_start_status[key]
             line = str(
                 f"{tab1}" "{}:" f"{tab2}" "{}"
             ).format(

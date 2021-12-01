@@ -367,7 +367,7 @@ class Blender:
         max_height = 65535
         max_pixs = max_width * max_height
         pil_image.MAX_IMAGE_PIXELS = max_pixs
-        self.logln("Tweaked PIL max image pixels:  Width: {}  Height: {}".format(max_width, max_height), 1)
+        self.logln("Tweaked PIL safety max pixels:  Width: {}  Height: {}".format(max_width, max_height), 1)
 
     def prep(self):
         """Prepares for blending."""
@@ -533,7 +533,7 @@ class Blender:
                 self._blend_block(iy, ix)
 
                 needs_log = curr_block + 1 == 1
-                needs_log = needs_log or (curr_block + 1) % 15 == 0
+                needs_log = needs_log or (curr_block + 1) % 120 == 0
                 needs_log = needs_log or curr_block + 1 == total_block_count
                 if needs_log:
                     self.logln("Blended: Block {} / {}".format(curr_block + 1, total_block_count))

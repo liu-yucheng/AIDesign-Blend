@@ -38,11 +38,11 @@ will_start_session_info = str(
 
 completed_session_info = str(
     "---- The above has been logged to: {} ----\n"
-    "Completed the training session\n"
+    "Completed the session\n"
 )
 """The info to display when the session completes."""
 
-aborted_session_info = "Aborted the training session\n"
+aborted_session_info = "Aborted the session\n"
 """The info to display when the user aborts the session."""
 
 too_many_args_info = str(
@@ -68,7 +68,7 @@ none_proj_info = str(
 
 stopped_session_info = str(
     "---- The above has been logged to: {} ----\n"
-    "Stopped the training session\n"
+    "Stopped the session\n"
 )
 """The info to display when the session stops from an exception."""
 

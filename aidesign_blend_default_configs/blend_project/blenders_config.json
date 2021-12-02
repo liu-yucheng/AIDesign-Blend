@@ -4,5 +4,10 @@
     "random_flipping": false,
     "frag_resolution": 64,
     "x_frag_count": 2,
-    "y_frag_count": 2
+    "y_frag_count": 2,
+    "frags_grid": {
+        "save": false,
+        "padding": 2,
+        "padding_brightness": 16
+    }
 }

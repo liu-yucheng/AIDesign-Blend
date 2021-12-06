@@ -9,12 +9,14 @@ import numpy
 import os
 import pathlib
 import random
+import typing
 
 from PIL import Image as pil_image
 
 from aidesign_blend import defaults
 from aidesign_blend import utils
 
+_Callable = typing.Callable
 _join = os.path.join
 _listdir = os.listdir
 _Path = pathlib.Path
@@ -84,6 +86,10 @@ class Blender:
         """Fragments grid height."""
         fgrid = None
         """Fragments grid. Numpy array. Subscript [x, y]."""
+        grad_func_name = None
+        """Gradient function name."""
+        grad_func = None
+        """Gradient function. Used to calculate the gradient progress. Input and output range [0, 1]."""
 
     def __init__(self, frags_path, proj_path, logs, debug_level=0):
         """Inits self with the given args."""
@@ -125,6 +131,22 @@ class Blender:
         self.logln("Blenders config location: {}".format(config_loc), 1)
         self.config = utils.load_json(config_loc)
         self.logln("Completed reading blenders config", 1)
+
+    def _clamp(self, var_in, floor=0, ceil=1):
+        var_in = float(var_in)
+        floor = float(floor)
+        ceil = float(ceil)
+
+        var_out = var_in
+        if var_out < floor:
+            var_out = floor
+        elif var_out > ceil:
+            var_out = ceil
+
+        return var_out
+
+    def _linear(self, var_in):
+        return self._clamp(var_in)
 
     def _parse_config(self):
         c = self.context
@@ -247,6 +269,10 @@ class Blender:
             )
         # end if
 
+        c.grad_func_name = "linear"
+        c.grad_func = self._linear
+        self.logln("Prepared the gradient function: {}".format(c.grad_func_name), 1)
+
         self.logln("Completed parsing blenders config", 1)
 
     def _read_frags_path(self, frags_path):
@@ -307,6 +333,20 @@ class Blender:
         matrix = numpy.ndarray((x_size, y_size), dtype=numpy.single)
         return matrix
 
+    def _grad_prog(self, idx, count):
+        idx = int(idx)
+        count = int(count)
+        c = self.context
+
+        last_idx = count - 1
+        float_idx = float(idx)
+        float_last_idx = float(last_idx)
+        line_prog = float_idx / float_last_idx
+
+        grad_func: _Callable[[float], float] = c.grad_func
+        prog = grad_func(line_prog)
+        return prog
+
     def _prep_matrices(self):
         c = self.context
 
@@ -349,24 +389,21 @@ class Blender:
             # end for
         self.logln("flip_mtx: {}".format(flip_mtx), 103)
 
-        w = c.frag_width // 2  # Width
-        h = c.frag_height // 2  # Height
-        ul_bmtx = self._make_numpy_2d_matrix(w, h)
-        ur_bmtx = self._make_numpy_2d_matrix(w, h)
-        ll_bmtx = self._make_numpy_2d_matrix(w, h)
-        lr_bmtx = self._make_numpy_2d_matrix(w, h)
-        for iy in range(h):
-            for ix in range(w):
-                h2 = h - 1
-                w2 = w - 1
+        width = c.frag_width // 2
+        height = c.frag_height // 2
+        ul_bmtx = self._make_numpy_2d_matrix(width, height)
+        ur_bmtx = self._make_numpy_2d_matrix(width, height)
+        ll_bmtx = self._make_numpy_2d_matrix(width, height)
+        lr_bmtx = self._make_numpy_2d_matrix(width, height)
+        for iy in range(height):
+            for ix in range(width):
+                ix_width_prog = self._grad_prog(ix, width)
+                iy_height_prog = self._grad_prog(iy, height)
 
-                iy_over_h2 = iy / h2
-                ix_over_w2 = ix / w2
-
-                ul_fac = (1 - iy_over_h2) * (1 - ix_over_w2)
-                ur_fac = (1 - iy_over_h2) * ix_over_w2
-                ll_fac = iy_over_h2 * (1 - ix_over_w2)
-                lr_fac = iy_over_h2 * ix_over_w2
+                ul_fac = (1 - iy_height_prog) * (1 - ix_width_prog)
+                ur_fac = (1 - iy_height_prog) * ix_width_prog
+                ll_fac = iy_height_prog * (1 - ix_width_prog)
+                lr_fac = iy_height_prog * ix_width_prog
 
                 ul_bmtx[ix, iy] = ul_fac
                 ur_bmtx[ix, iy] = ur_fac
@@ -398,14 +435,14 @@ class Blender:
         self.logln("Prepared the index matrix", 1)
         c.flip_mtx = flip_mtx
         self.logln("Prepared the flipping matrix", 1)
-        c.bmtx_width = w
-        c.bmtx_height = h
+        c.bmtx_width = width
+        c.bmtx_height = height
         c.ul_bmtx = ul_bmtx
         c.ur_bmtx = ur_bmtx
         c.ll_bmtx = ll_bmtx
         c.lr_bmtx = lr_bmtx
         self.logln("Prepared 4 blend matrices:  Upper-left  Upper-right  Lower-left  Lower-right", 1)
-        self.logln("Blend matrices:  Width: {}  Height: {}".format(w, h), 1)
+        self.logln("Blend matrices:  Width: {}  Height: {}".format(width, height), 1)
 
     def _make_numpy_3d_matrix(self, x_size, y_size, z_size):
         matrix = numpy.ndarray((x_size, y_size, z_size), dtype=numpy.single)
@@ -539,6 +576,13 @@ class Blender:
         ll_np = numpy.array(ll_img, dtype=numpy.single)
         lr_np = numpy.array(lr_img, dtype=numpy.single)
 
+        axis_ord = [1, 0, 2]
+        ul_np = numpy.transpose(ul_np, axis_ord)
+        ur_np = numpy.transpose(ur_np, axis_ord)
+        ll_np = numpy.transpose(ll_np, axis_ord)
+        lr_np = numpy.transpose(lr_np, axis_ord)
+        self.logln("Transposed the UL, UR, LL, LR images with axis order: {}".format(axis_ord), 103)
+
         self.logstr(
             str(
                 "ul_np:\n"
@@ -628,6 +672,10 @@ class Blender:
     def _save_blended(self):
         c = self.context
 
+        axis_ord = [1, 0, 2]
+        c.canvas = numpy.transpose(c.canvas, axis_ord)
+        self.logln("Transposed the canvas with axis order {}".format(axis_ord), 101)
+
         canvas: numpy.ndarray = c.canvas
         canvas = canvas.astype(numpy.ubyte)
         img = pil_image.fromarray(canvas, "RGB")
@@ -662,6 +710,9 @@ class Blender:
             img = img.transpose(yflip)
 
         img_np = numpy.array(img, dtype=numpy.single)
+        axis_ord = [1, 0, 2]
+        img_np = numpy.transpose(img_np, axis_ord)
+        self.logln("Transposed the image with axis order: {}".format(axis_ord), 103)
 
         self.logstr(
             str(
@@ -709,6 +760,10 @@ class Blender:
 
     def _save_fgrid(self):
         c = self.context
+
+        axis_ord = [1, 0, 2]
+        c.fgrid = numpy.transpose(c.fgrid, axis_ord)
+        self.logln("Transposed the fragments grid with axis order {}".format(axis_ord), 101)
 
         if c.save_fgrid:
             fgrid: numpy.ndarray = c.fgrid

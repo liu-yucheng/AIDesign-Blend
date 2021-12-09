@@ -16,7 +16,7 @@ import shutil
 def main():
     setuptools.setup(
         name="aidesign-blend",
-        version="0.6.0",
+        version="0.7.0",
         description="AIDesign Image Fragments Blending Application",
         author="The AIDesign Team",
         packages=setuptools.find_packages(),

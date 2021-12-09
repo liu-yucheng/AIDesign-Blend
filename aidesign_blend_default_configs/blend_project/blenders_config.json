@@ -9,5 +9,10 @@
         "save": false,
         "padding": 2,
         "padding_brightness": 16
+    },
+    "custom_gradient": {
+        "enabled": false,
+        "coefficients": [1],
+        "exponents": [1]
     }
 }

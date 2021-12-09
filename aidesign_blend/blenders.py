@@ -14,6 +14,7 @@ import typing
 from PIL import Image as pil_image
 
 from aidesign_blend import defaults
+from aidesign_blend import grads
 from aidesign_blend import utils
 
 _Callable = typing.Callable
@@ -86,8 +87,8 @@ class Blender:
         """Fragments grid height."""
         fgrid = None
         """Fragments grid. Numpy array. Subscript [x, y]."""
-        grad_func_name = None
-        """Gradient function name."""
+        cust_grad_enabled = None
+        """Custom gradient function enabled."""
         grad_func = None
         """Gradient function. Used to calculate the gradient progress. Input and output range [0, 1]."""
 
@@ -132,21 +133,37 @@ class Blender:
         self.config = utils.load_json(config_loc)
         self.logln("Completed reading blenders config", 1)
 
-    def _clamp(self, var_in, floor=0, ceil=1):
-        var_in = float(var_in)
-        floor = float(floor)
-        ceil = float(ceil)
+    def _pad_coefs_exps(self, coefs, exps):
+        coefs = list(coefs)
+        exps = list(exps)
 
-        var_out = var_in
-        if var_out < floor:
-            var_out = floor
-        elif var_out > ceil:
-            var_out = ceil
+        coefs_len = len(coefs)
+        exps_len = len(exps)
 
-        return var_out
+        if coefs_len == 0:
+            coefs.append(float(0))
+        if exps_len == 0:
+            exps.append(float(0))
 
-    def _linear(self, var_in):
-        return self._clamp(var_in)
+        coefs_len = len(coefs)
+        exps_len = len(exps)
+
+        if coefs_len < exps_len:
+            pad_len = exps_len - coefs_len
+            pad = [float(0) for _ in range(pad_len)]
+            coefs += pad
+        elif coefs_len > exps_len:
+            pad_len = coefs_len - exps_len
+            pad = [float(0) for _ in range(pad_len)]
+            exps += pad
+        else:  # elif coefs_len == exps_len:
+            pass
+        # end if
+
+        coefs = [float(elem) for elem in coefs]
+        exps = [float(elem) for elem in exps]
+
+        return coefs, exps
 
     def _parse_config(self):
         c = self.context
@@ -269,9 +286,32 @@ class Blender:
             )
         # end if
 
-        c.grad_func_name = "linear"
-        c.grad_func = self._linear
-        self.logln("Prepared the gradient function: {}".format(c.grad_func_name), 1)
+        cust_grad_enabled = False
+        cust_grad_key = "custom_gradient"
+        if cust_grad_key in self.config:
+            cust_grad_enabled = self.config[cust_grad_key]["enabled"]
+            cust_grad_enabled = bool(cust_grad_enabled)
+
+        if cust_grad_enabled:
+            cgrad_config = self.config[cust_grad_key]
+
+            coefs = cgrad_config["coefficients"]
+            exps = cgrad_config["exponents"]
+            coefs, exps = self._pad_coefs_exps(coefs, exps)
+
+            grad_func = grads.Poly1V(coefs, exps)
+        else:  # elif not cust_grad_enabled:
+            grad_func = grads.LU()
+
+        c.cust_grad_enabled = cust_grad_enabled
+        c.grad_func = grad_func
+
+        if cust_grad_enabled:
+            grad_name = "custom"
+        else:  # elif not cust_grad_enabled:
+            grad_name = "default"
+        self.logln("Prepared gradient function: {}".format(grad_name), 1)
+        self.logln("Gradient function: \" {} \"".format(grad_func.fnstr()), 1)
 
         self.logln("Completed parsing blenders config", 1)
 
@@ -343,7 +383,7 @@ class Blender:
         float_last_idx = float(last_idx)
         line_prog = float_idx / float_last_idx
 
-        grad_func: _Callable[[float], float] = c.grad_func
+        grad_func: _Callable[..., float] = c.grad_func
         prog = grad_func(line_prog)
         return prog
 

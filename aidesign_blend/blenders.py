@@ -437,13 +437,43 @@ class Blender:
         lr_bmtx = self._make_numpy_2d_matrix(width, height)
         for iy in range(height):
             for ix in range(width):
-                ix_width_prog = self._grad_prog(ix, width)
-                iy_height_prog = self._grad_prog(iy, height)
+                x_prog = self._grad_prog(ix, width)
+                y_prog = self._grad_prog(iy, height)
 
-                ul_fac = (1 - iy_height_prog) * (1 - ix_width_prog)
-                ur_fac = (1 - iy_height_prog) * ix_width_prog
-                ll_fac = iy_height_prog * (1 - ix_width_prog)
-                lr_fac = iy_height_prog * ix_width_prog
+                # The pre-0.7.0 blend factor formulas
+                # ul_fac = (1 - y_prog) * (1 - x_prog)
+                # ur_fac = (1 - y_prog) * x_prog
+                # ll_fac = y_prog * (1 - x_prog)
+                # lr_fac = y_prog * x_prog
+
+                # Use normalized 2-d distances as blend factors
+                last_ix = width - 1
+                last_iy = height - 1
+                x_remain = self._grad_prog(last_ix - ix, width)
+                y_remain = self._grad_prog(last_iy - iy, height)
+
+                ul_prog = (x_prog ** 2 + y_prog ** 2) ** 0.5
+                ur_prog = (x_remain ** 2 + y_prog ** 2) ** 0.5
+                ll_prog = (x_prog ** 2 + y_remain ** 2) ** 0.5
+                lr_prog = (x_remain ** 2 + y_remain ** 2) ** 0.5
+
+                max_prog = 1
+                ul_remain = max_prog - ul_prog
+                ur_remain = max_prog - ur_prog
+                ll_remain = max_prog - ll_prog
+                lr_remain = max_prog - lr_prog
+
+                ul_remain = utils.clamp(ul_remain, 0, 1)
+                ur_remain = utils.clamp(ur_remain, 0, 1)
+                ll_remain = utils.clamp(ll_remain, 0, 1)
+                lr_remain = utils.clamp(lr_remain, 0, 1)
+
+                remain_sum = ul_remain + ur_remain + ll_remain + lr_remain
+
+                ul_fac = ul_remain / remain_sum
+                ur_fac = ur_remain / remain_sum
+                ll_fac = ll_remain / remain_sum
+                lr_fac = lr_remain / remain_sum
 
                 ul_bmtx[ix, iy] = ul_fac
                 ur_bmtx[ix, iy] = ur_fac
@@ -668,6 +698,11 @@ class Blender:
             numpy.multiply(c.ur_bmtx, ur_np[:, :, 2]) + \
             numpy.multiply(c.ll_bmtx, ll_np[:, :, 2]) + \
             numpy.multiply(c.lr_bmtx, lr_np[:, :, 2])
+
+        numpy.clip(block_r, 0, 255, block_r)
+        numpy.clip(block_g, 0, 255, block_g)
+        numpy.clip(block_b, 0, 255, block_b)
+
         self.logstr(
             str(
                 "block_r: \n"
@@ -801,11 +836,11 @@ class Blender:
     def _save_fgrid(self):
         c = self.context
 
-        axis_ord = [1, 0, 2]
-        c.fgrid = numpy.transpose(c.fgrid, axis_ord)
-        self.logln("Transposed the fragments grid with axis order {}".format(axis_ord), 101)
-
         if c.save_fgrid:
+            axis_ord = [1, 0, 2]
+            c.fgrid = numpy.transpose(c.fgrid, axis_ord)
+            self.logln("Transposed the fragments grid with axis order {}".format(axis_ord), 101)
+
             fgrid: numpy.ndarray = c.fgrid
             fgrid = fgrid.astype(numpy.ubyte)
             img = pil_image.fromarray(fgrid, "RGB")

@@ -7,7 +7,7 @@ Last updated by: liu-yucheng
 
 # AIDesign-Blend
 
-AI Design image fragments blending application.
+AIDesign image fragments blending application.
 
 # Installing The App Using `pip`
 

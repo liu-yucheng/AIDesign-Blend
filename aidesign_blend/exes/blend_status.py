@@ -1,6 +1,8 @@
 """The "blend status" command executable."""
 
-# Initially added by: liu-yucheng
+# Copyright (C) 2022 Yucheng Liu. GNU GPL Version 3.
+# GNU GPL Version 3 copy: https://www.gnu.org/licenses/gpl-3.0.txt
+# First added by: liu-yucheng
 # Last updated by: liu-yucheng
 
 import copy
@@ -8,8 +10,8 @@ import os
 import shutil
 import sys
 
-from aidesign_blend import defaults
-from aidesign_blend import utils
+from aidesign_blend.libs import defaults
+from aidesign_blend.libs import utils
 
 _brief_usage = "blend status"
 _usage = str(

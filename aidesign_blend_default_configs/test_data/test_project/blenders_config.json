@@ -1,0 +1,18 @@
+{
+    "manual_seed": null,
+    "random_frags": true,
+    "random_flipping": true,
+    "frag_resolution": 64,
+    "x_frag_count": 4,
+    "y_frag_count": 4,
+    "frags_grid": {
+        "save": true,
+        "padding": 2,
+        "padding_brightness": 16
+    },
+    "custom_gradient": {
+        "enabled": false,
+        "coefficients": [1],
+        "exponents": [1]
+    }
+}

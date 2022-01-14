@@ -3,13 +3,21 @@
 Not supposed to be changed but can be changed. Change if you know what you are doing.
 """
 
-import os
+# Copyright (C) 2022 Yucheng Liu. GNU GPL Version 3.
+# GNU GPL Version 3 copy: https://www.gnu.org/licenses/gpl-3.0.txt
+# First added by: liu-yucheng
+# Last updated by: liu-yucheng
 
-_path = os.path
-_join = _path.join
+import pathlib
 
-_curr_path = _path.dirname(__file__)
-_repo_path = _path.abspath(_join(_curr_path, ".."))
+from os import path as ospath
+
+_join = ospath.join
+_Path = pathlib.Path
+
+_curr_path = str(_Path(__file__).parent)
+_libs_path = str(_Path(_curr_path).parent)
+_repo_path = str(_Path(_libs_path).parent)
 
 default_configs_path = _join(_repo_path, "aidesign_blend_default_configs")
 """Default configs path."""

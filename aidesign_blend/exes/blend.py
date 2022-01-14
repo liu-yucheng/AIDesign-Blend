@@ -1,6 +1,8 @@
 """The "blend" command executable."""
 
-# Initially added by: liu-yucheng
+# Copyright (C) 2022 Yucheng Liu. GNU GPL Version 3.
+# GNU GPL Version 3 copy: https://www.gnu.org/licenses/gpl-3.0.txt
+# First added by: liu-yucheng
 # Last updated by: liu-yucheng
 
 import copy
@@ -53,31 +55,31 @@ def _run_command():
         print(unknown_arg_info.format(command), end="")
         exit(1)
     elif command == "create":
-        from aidesign_blend import blend_create
+        from aidesign_blend.exes import blend_create
         blend_create.argv_copy = argv_copy
         blend_create.run()
     elif command == "status":
-        from aidesign_blend import blend_status
+        from aidesign_blend.exes import blend_status
         blend_status.argv_copy = argv_copy
         blend_status.run()
     elif command == "help":
-        from aidesign_blend import blend_help
+        from aidesign_blend.exes import blend_help
         blend_help.argv_copy = argv_copy
         blend_help.run()
     elif command == "project":
-        from aidesign_blend import blend_project
+        from aidesign_blend.exes import blend_project
         blend_project.argv_copy = argv_copy
         blend_project.run()
     elif command == "frags":
-        from aidesign_blend import blend_frags
+        from aidesign_blend.exes import blend_frags
         blend_frags.argv_copy = argv_copy
         blend_frags.run()
     elif command == "reset":
-        from aidesign_blend import blend_reset
+        from aidesign_blend.exes import blend_reset
         blend_reset.argv_copy = argv_copy
         blend_reset.run()
     elif command == "start":
-        from aidesign_blend import blend_start
+        from aidesign_blend.exes import blend_start
         blend_start.argv_copy = argv_copy
         blend_start.run()
     else:  # elif ! command is unknown !:

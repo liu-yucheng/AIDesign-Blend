@@ -34,7 +34,7 @@ def main():
     """Main function."""
     _setup(
         name="aidesign-blend",
-        version="0.9.0",
+        version="0.9.1",
         description="AIDesign Image Fragments Blending Application",
         author="Yucheng Liu (From The AIDesign Team)",
         packages=_find_packages(),
@@ -50,9 +50,10 @@ def main():
     from aidesign_blend.exes import blend as _
 
     # Initialize app data with the defaults if necessary
-    repo_path = str(_Path(__file__).parent)
-    app_data_path = _join(repo_path, ".aidesign_blend_app_data")
-    default_app_data_path = _join(repo_path, "aidesign_blend_default_configs", "app_data")
+    from aidesign_blend.libs import defaults
+
+    app_data_path = defaults.app_data_path
+    default_app_data_path = defaults.default_app_data_path
 
     if not _exists(app_data_path):
         _copytree(default_app_data_path, app_data_path)

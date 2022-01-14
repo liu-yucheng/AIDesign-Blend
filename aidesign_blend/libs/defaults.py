@@ -1,6 +1,7 @@
 """Default values.
 
-Not supposed to be changed but can be changed. Change if you know what you are doing.
+Not supposed to be changed but can be changed.
+Change if you know what you are doing.
 """
 
 # Copyright (C) 2022 Yucheng Liu. GNU GPL Version 3.
@@ -15,9 +16,9 @@ from os import path as ospath
 _join = ospath.join
 _Path = pathlib.Path
 
-_curr_path = str(_Path(__file__).parent)
-_libs_path = str(_Path(_curr_path).parent)
-_repo_path = str(_Path(_libs_path).parent)
+_libs_path = str(_Path(__file__).parent)
+_main_package_path = str(_Path(_libs_path).parent)
+_repo_path = str(_Path(_main_package_path).parent)
 
 default_configs_path = _join(_repo_path, "aidesign_blend_default_configs")
 """Default configs path."""
@@ -26,7 +27,7 @@ default_app_data_path = _join(default_configs_path, "app_data")
 default_blend_project_path = _join(default_configs_path, "blend_project")
 """Default blend project path."""
 default_frags_path = _join(default_configs_path, "default_frags")
-"""Default fragments path"""
+"""Default fragments path."""
 
 app_data_path = _join(_repo_path, ".aidesign_blend_app_data")
 """App data path."""

@@ -34,7 +34,7 @@ def main():
     """Main function."""
     _setup(
         name="aidesign-blend",
-        version="0.9.2",
+        version="0.9.3",
         description="AIDesign Image Fragments Blending Application",
         author="Yucheng Liu (From The AIDesign Team)",
         packages=_find_packages(),
@@ -45,9 +45,6 @@ def main():
         }  # ,
         # test_suite="aidesign_blend.tests"
     )
-
-    # Test the main command executable availability
-    from aidesign_blend.exes import blend as _
 
     # Initialize app data with the defaults if necessary
     from aidesign_blend.libs import defaults

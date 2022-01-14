@@ -1,6 +1,8 @@
-"""The "blend project" command executable."""
+"""The "blend frags" command executable."""
 
-# Initially added by: liu-yucheng
+# Copyright (C) 2022 Yucheng Liu. GNU GPL Version 3.
+# GNU GPL Version 3 copy: https://www.gnu.org/licenses/gpl-3.0.txt
+# First added by: liu-yucheng
 # Last updated by: liu-yucheng
 
 import copy
@@ -8,18 +10,18 @@ import os
 import pathlib
 import sys
 
-from aidesign_blend import defaults
-from aidesign_blend import utils
+from aidesign_blend.libs import defaults
+from aidesign_blend.libs import utils
 
 
-_brief_usage = "blend project <path-to-project>"
+_brief_usage = "blend frags <path-to-frags>"
 _usage = str(
     "Usage: " f"{_brief_usage}" "\n"
     "Help: blend help"
 )
 
 info = str(
-    "Selected the project at: {}\n"
+    "Selected the frags at: {}\n"
     "Applied the selection to \"blend start\""
 )
 """The primary info to display."""
@@ -38,19 +40,19 @@ too_many_args_info = str(
 )
 """The info to display when the executable gets too many arguments."""
 
-proj_does_not_exist_info = str(
-    "\"" f"{_brief_usage}" "\" cannot find the project\n"
-    "Please check if the project is present at: {}\n"
+frags_do_not_exist_info = str(
+    "\"" f"{_brief_usage}" "\" cannot find the frags\n"
+    "Please check if the frags are present at: {}\n"
     f"{_usage}" "\n"
 )
-"""The info to display when the selected project does not exist."""
+"""The info to display when the selected frags do not exist."""
 
-proj_is_not_dir_info = str(
-    "\"" f"{_brief_usage}" "\" finds that the project is not a directory\n"
-    "Please check if the project appears as a directory at: {}\n"
+frags_are_not_dir_info = str(
+    "\"" f"{_brief_usage}" "\" finds that the frags are not a directory\n"
+    "Please check if the frags appear as a directory at: {}\n"
     f"{_usage}" "\n"
 )
-"""The info to display when the selected project is not a directory."""
+"""The info to display when the selected frags are not a directory."""
 
 argv_copy = None
 """A consumable copy of sys.argv."""
@@ -65,23 +67,23 @@ def run():
         print(too_few_args_info.format(argv_copy_length), end="")
         exit(1)
     elif argv_copy_length == 1:
-        path_to_proj = argv_copy.pop(0)
-        path_to_proj = os.path.join(".", path_to_proj)
-        path_to_proj = pathlib.Path(path_to_proj).resolve()
-        path_to_proj = str(path_to_proj)
+        path_to_frags = argv_copy.pop(0)
+        path_to_frags = os.path.join(".", path_to_frags)
+        path_to_frags = pathlib.Path(path_to_frags).resolve()
+        path_to_frags = str(path_to_frags)
 
-        if not os.path.exists(path_to_proj):
-            print(proj_does_not_exist_info.format(path_to_proj), end="")
+        if not os.path.exists(path_to_frags):
+            print(frags_do_not_exist_info.format(path_to_frags), end="")
             exit(1)
-        if not os.path.isdir(path_to_proj):
-            print(proj_is_not_dir_info.format(path_to_proj), end="")
+        if not os.path.isdir(path_to_frags):
+            print(frags_are_not_dir_info.format(path_to_frags), end="")
             exit(1)
 
         blend_start_status = utils.load_json(defaults.blend_start_status_loc)
-        blend_start_status["project_path"] = path_to_proj
+        blend_start_status["frags_path"] = path_to_frags
         utils.save_json(blend_start_status, defaults.blend_start_status_loc)
 
-        print(info.format(path_to_proj), end="")
+        print(info.format(path_to_frags), end="")
         exit(0)
     else:  # elif argv_copy_length > 1:
         print(too_many_args_info.format(argv_copy_length), end="")

@@ -1,6 +1,10 @@
-# Other ignored files
-**/.aidesign_blend_app_data/
+# Default ignored file name pattern
+**/.*/
 
+# Project specific ignored files
+**/.aidesign_blend_app_data/
+**/.aidesign_blend_test_data/
+**/.vscode/
 
 # Byte-compiled / optimized / DLL files
 **/__pycache__/

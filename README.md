@@ -1,5 +1,9 @@
-[//]: # "Initially added by: liu-yucheng"
-[//]: # "Last updated by: liu-yucheng"
+<!---
+Copyright (C) 2022 Yucheng Liu. GNU GPL Version 3.
+GNU GPL Version 3 copy: https://www.gnu.org/licenses/gpl-3.0.txt
+First added by: liu-yucheng
+Last updated by: liu-yucheng
+--->
 
 # AIDesign-Blend
 
@@ -28,3 +32,24 @@ AI Design image fragments blending application.
 
 `blend help`: The help subcommand, which tells you the details about how to use the app.
 
+# Copyright Notice
+
+```plaintext
+AIDesign-Blend, an image fragments blending application.
+Copyright (C) 2022 Yucheng Liu. GNU GPL Version 3.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program.  If not, see:
+    1. The LICENSE file in this repository.
+    2. https://www.gnu.org/licenses/.
+    3. https://www.gnu.org/licenses/gpl-3.0.txt.
+```

@@ -7,12 +7,11 @@ The "entry_points" parameter of the setup function specifies the function to cal
     corresponding command via the command line.
 """
 
-# Copyright (C) 2022 Yucheng Liu. GNU GPL Version 3.
-# GNU GPL Version 3 copy: https://www.gnu.org/licenses/gpl-3.0.txt
-# First added by: liu-yucheng
-# Last updated by: liu-yucheng
+# Copyright 2022 Yucheng Liu. GNU GPL3 license.
+# GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
+# First added by username: liu-yucheng
+# Last updated by username: liu-yucheng
 
-import pathlib
 import setuptools
 import shutil
 
@@ -23,8 +22,6 @@ from os import path as ospath
 _copytree = shutil.copytree
 _exists = ospath.exists
 _find_packages = setuptools.find_packages
-_join = ospath.join
-_Path = pathlib.Path
 _setup = setuptools.setup
 
 # End of aliases
@@ -34,7 +31,7 @@ def main():
     """Main function."""
     _setup(
         name="aidesign-blend",
-        version="0.9.3",
+        version="0.9.4",
         description="AIDesign Image Fragments Blending Application",
         author="Yucheng Liu (From The AIDesign Team)",
         packages=_find_packages(),

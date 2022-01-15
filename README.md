@@ -63,15 +63,18 @@ The version tags are on the main branch.
 ### Short Version
 
 ```text
-Copyright (C) 2022 Yucheng Liu. GNU GPL3 license (GNU General Public License Version 3).
-You should have and keep a copy of the above license. If not, please get it from https://www.gnu.org/licenses/gpl-3.0.txt.
+Copyright (C) 2022 Yucheng Liu. GNU GPL3 license (GNU General Public License
+Version 3).
+You should have and keep a copy of the above license. If not, please get it
+from https://www.gnu.org/licenses/gpl-3.0.txt.
 ```
 
 ### Long Version
 
 ```text
 AIDesign-Blend, an image fragments blending application.
-Copyright (C) 2022 Yucheng Liu. GNU GPL3 license (GNU General Public License Version 3).
+Copyright (C) 2022 Yucheng Liu. GNU GPL3 license (GNU General Public License
+Version 3).
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

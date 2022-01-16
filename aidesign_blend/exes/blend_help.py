@@ -1,4 +1,4 @@
-"""The "blend help" command executable."""
+""""blend help" command executable."""
 
 # Copyright 2022 Yucheng Liu. GNU GPL3 license.
 # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
@@ -8,13 +8,21 @@
 import copy
 import sys
 
-_brief_usage = "blend help"
-_usage = str(
-    "Usage: " f"{_brief_usage}" "\n"
-    "Help: blend help"
-)
+_argv = sys.argv
+_deepcopy = copy.deepcopy
+_stderr = sys.stderr
 
-info = r"""Usage: blend <command> ...
+brief_usage = "blend help"
+"""Brief usage."""
+usage = str(
+    f"Usage: {brief_usage}\n"
+    f"Help: blend help"
+)
+"""Usage."""
+
+info = fr"""
+
+Usage: blend <command> ...
 ==== Commands ====
 help:
     When:   You need help info. For example, now.
@@ -39,43 +47,48 @@ reset:
     When:   You want to reset the app data.
     How-to: blend reset
     Notes:  You will lose the current app data after the reset.
+
 """
-"""The primary info to display."""
+"""Primary info to display."""
+info = info.strip()
 
 too_many_args_info = str(
-    "\"" f"{_brief_usage}" "\" gets too many arguments\n"
-    "Expects 0 arguments; Gets {} arguments\n"
-    f"{_usage}" "\n"
+    f"\"{brief_usage}\" gets too many arguments\n"
+    f"Expects 0 arguments; Gets {{}} arguments\n"
+    f"{usage}"
 )
-"""The info to display when the executable gets too many arguments."""
+"""Info to display when getting too many arguments."""
 
 argv_copy = None
-"""A consumable copy of sys.argv."""
+"""Consumable copy of sys.argv."""
 
 
 def run():
     """Runs the executable as a command."""
     global argv_copy
     argv_copy_length = len(argv_copy)
+
     assert argv_copy_length >= 0
+
     if argv_copy_length == 0:
-        print(info, end="")
+        print(info)
         exit(0)
     else:  # elif argv_copy_length > 0:
-        print(too_many_args_info.format(argv_copy_length), end="")
+        print(too_many_args_info.format(argv_copy_length), file=_stderr)
         exit(1)
 
 
 def main():
     """Starts the executable."""
     global argv_copy
-    argv_length = len(sys.argv)
+    argv_length = len(_argv)
+
     assert argv_length >= 1
-    argv_copy = copy.deepcopy(sys.argv)
+
+    argv_copy = _deepcopy(_argv)
     argv_copy.pop(0)
     run()
 
 
-# Let main be the script entry point
 if __name__ == "__main__":
     main()

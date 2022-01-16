@@ -52,7 +52,8 @@ argv_copy = None
 def _run_command():
     global argv_copy
 
-    argv_copy = list(argv_copy)
+    argv_copy = [str(elem) for elem in argv_copy]
+    assert len(argv_copy) > 0
     command = argv_copy.pop(0)
     command = str(command)
 

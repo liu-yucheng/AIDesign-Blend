@@ -1,4 +1,4 @@
-"""The "blend reset" command executable."""
+""""blend reset" command executable."""
 
 # Copyright 2022 Yucheng Liu. GNU GPL3 license.
 # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
@@ -11,57 +11,67 @@ import sys
 from aidesign_blend.libs import defaults
 from aidesign_blend.libs import utils
 
-_brief_usage = "blend reset"
-_usage = str(
-    "Usage: " f"{_brief_usage}" "\n"
-    "Help: gan help"
-)
+_argv = sys.argv
+_deepcopy = copy.deepcopy
+_load_json = utils.load_json
+_save_json = utils.save_json
+_stderr = sys.stderr
 
-info = "Completed resetting the app data at: {}\n"
-"""The primary info to display."""
+brief_usage = "blend reset"
+"""Brief usage."""
+usage = str(
+    f"Usage: {brief_usage}\n"
+    f"Help: gan help"
+)
+"""Usage."""
+
+info = "Completed resetting the app data at: {}"
+"""Primary info to display."""
 
 too_many_args_info = str(
-    "\"" f"{_brief_usage}" "\" gets too many arguments\n"
-    "Expects 0 arguments; Gets {} arguments\n"
-    f"{_usage}" "\n"
+    f"\"{brief_usage}\" gets too many arguments\n"
+    f"Expects 0 arguments; Gets {{}} arguments\n"
+    f"{usage}"
 )
-"""The info to display when the executable gets too many arguments."""
+"""Info to display when getting too many arguments."""
 
 argv_copy = None
-"""A consumable copy of sys.argv."""
+"""Consumable copy of sys.argv."""
 
 
 def run():
     """Runs the executable as a command."""
     global argv_copy
     argv_copy_length = len(argv_copy)
+
     assert argv_copy_length >= 0
+
     if argv_copy_length == 0:
         # Reset blend start status
-        blend_start_status = utils.load_json(defaults.blend_start_status_loc)
+        blend_start_status = _load_json(defaults.blend_start_status_loc)
         blend_start_status["frags_path"] = None
         blend_start_status["project_path"] = None
-        utils.save_json(blend_start_status, defaults.blend_start_status_loc)
+        _save_json(blend_start_status, defaults.blend_start_status_loc)
 
-        print(info.format(defaults.app_data_path), end="")
+        print(info.format(defaults.app_data_path))
         exit(0)
-    # elif argv_copy_length > 0
-    else:
-        print(too_many_args_info.format(argv_copy_length), end="")
+    else:  # elif argv_copy_length > 0:
+        print(too_many_args_info.format(argv_copy_length), file=_stderr)
         exit(1)
+    # end if
 
 
 def main():
     """Starts the executable."""
     global argv_copy
-    argv_length = len(sys.argv)
+    argv_length = len(_argv)
+
     assert argv_length >= 1
-    argv_copy = copy.deepcopy(sys.argv)
+
+    argv_copy = _deepcopy(_argv)
     argv_copy.pop(0)
     run()
-    exit(0)
 
 
-# Let main be the script entry point
 if __name__ == "__main__":
     main()

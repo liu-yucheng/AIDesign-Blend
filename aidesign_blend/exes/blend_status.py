@@ -6,73 +6,76 @@
 # Last updated by username: liu-yucheng
 
 import copy
-import os
 import shutil
 import sys
+
+from os import path as ospath
 
 from aidesign_blend.libs import defaults
 from aidesign_blend.libs import utils
 
-_brief_usage = "blend status"
-_usage = str(
-    "Usage: " f"{_brief_usage}" "\n"
-    "Help: blend help"
+_argv = sys.argv
+_copytree = shutil.copytree
+_deepcopy = copy.deepcopy
+_exists = ospath.exists
+_stderr = sys.stderr
+
+brief_usage = "blend status"
+"""Brief usage."""
+usage = str(
+    f"Usage: {brief_usage}\n"
+    f"Help: blend help"
 )
+"""Usage."""
 
 info = str(
-    "App data: {}\n"
-    "\"blend start\":\n"
-    "{}\n"
+    f"App data is at: {{}}\n"
+    f"\"blend start\" status:\n"
+    f"{{}}\n"
 )
-"""The primary info to display."""
+"""Primary info to display."""
 
 too_many_args_info = str(
-    "\"" f"{_brief_usage}" "\" gets too many arguments\n"
-    "Expects 0 arguments; Gets {} arguments\n"
-    f"{_usage}" "\n"
+    f"\"{brief_usage}\" gets too many arguments\n"
+    f"Expects 0 arguments; Gets {{}} arguments\n"
+    f"{usage}"
 )
-"""The info to display when the executable gets too many arguments."""
+"""Info to display when getting too many arguments."""
 
 argv_copy = None
-"""A consumable copy of sys.argv."""
+"""Consumable copy of sys.argv."""
 
 
 def run():
     """Runs the executable as a command."""
     global argv_copy
     argv_copy_length = len(argv_copy)
+
     assert argv_copy_length >= 0
+
     if argv_copy_length == 0:
-        if not os.path.exists(defaults.app_data_path):
-            shutil.copytree(defaults.default_app_data_path, defaults.app_data_path)
+        if not _exists(defaults.app_data_path):
+            _copytree(defaults.default_app_data_path, defaults.app_data_path)
 
         app_data_info = defaults.app_data_path
-        blend_start_info = ""
-
         blend_start_status = utils.load_json(defaults.blend_start_status_loc)
 
-        tab_width = 4
-        tab1 = " " * tab_width
+        tab_width1 = 4
+        tab_width2 = 8
+        tab1 = " " * tab_width1
         blend_start_lines = []
+        blend_start_info = ""
         for key in blend_start_status:
-            tab2_width = (2 * tab_width)
-            tab2_width = tab2_width - len(key) % tab2_width
-            tab2 = " " * tab2_width
+            tab2 = " " * (tab_width2 - len(key) % tab_width2)
             val = blend_start_status[key]
-            line = str(
-                f"{tab1}" "{}:" f"{tab2}" "{}"
-            ).format(
-                key, val
-            )
+            line = f"{tab1}{key}:{tab2}{val}"
             blend_start_lines.append(line)
-        # end for
 
         blend_start_info = "\n".join(blend_start_lines)
-
-        print(info.format(app_data_info, blend_start_info), end="")
+        print(info.format(app_data_info, blend_start_info))
         exit(0)
     else:  # elif argv_copy_length > 0:
-        print(too_many_args_info.format(argv_copy_length), end="")
+        print(too_many_args_info.format(argv_copy_length), file=_stderr)
         exit(1)
     # end if
 
@@ -80,13 +83,14 @@ def run():
 def main():
     """Starts the executable."""
     global argv_copy
-    argv_length = len(sys.argv)
+    argv_length = len(_argv)
+
     assert argv_length >= 1
-    argv_copy = copy.deepcopy(sys.argv)
+
+    argv_copy = _deepcopy(_argv)
     argv_copy.pop(0)
     run()
 
 
-# Let main be the script entry point
 if __name__ == "__main__":
     main()

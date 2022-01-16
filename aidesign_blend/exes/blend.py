@@ -9,50 +9,58 @@ import copy
 import pkg_resources
 import sys
 
+_argv = sys.argv
+_deepcopy = copy.deepcopy
+_require = pkg_resources.require
+_stderr = sys.stderr
 
-# Init _version
+# Initialize _version
 _version = "<unknown version>"
-_packages = pkg_resources.require("aidesign-blend")
+_packages = _require("aidesign-blend")
 if len(_packages) > 0:
     _version = _packages[0].version
 
-_brief_usage = "blend <command> ..."
-_usage = str(
-    "Usage: " f"{_brief_usage}" "\n"
-    "Help: blend help"
+brief_usage = "blend <command> ..."
+"""Brief usage."""
+usage = str(
+    f"Usage: {brief_usage}\n"
+    f"Help: blend help"
 )
+"""Usage."""
 
 info = str(
-    "AIDesign-Blend (aidesign-blend) " f"{_version}" "\n"
-    f"{_usage}" "\n"
+    f"AIDesign-Blend (aidesign-blend) {_version}\n"
+    f"{usage}"
 )
-"""The primary info to display."""
+"""Primary info to display."""
 
 unknown_command_info = str(
-    "\"" f"{_brief_usage}" "\" gets an unknown command: {}\n"
-    f"{_usage}" "\n"
+    f"\"{brief_usage}\" gets an unknown command: {{}}\n"
+    f"{usage}"
 )
-"""The info to display when the executable gets an unknown command."""
-
+"""Info to display when the executable gets an unknown command."""
 unknown_arg_info = str(
-    "\"" f"{_brief_usage}" "\" gets an unknown argument: {}\n"
-    f"{_usage}" "\n"
+    f"\"{brief_usage}\" gets an unknown argument: {{}}\n"
+    f"{usage}"
 )
-"""The info to display when the executable gets an unknown argument."""
+"""Info to display when the executable gets an unknown argument."""
 
 argv_copy = None
-"""A consumable copy of sys.argv."""
+"""Consumable copy of sys.argv."""
 
 
 def _run_command():
     global argv_copy
-    assert len(argv_copy) > 0
+
+    argv_copy = list(argv_copy)
     command = argv_copy.pop(0)
+    command = str(command)
+
     if len(command) <= 0:
-        print(unknown_command_info.format(command), end="")
+        print(unknown_command_info.format(command), file=_stderr)
         exit(1)
     elif command[0] == "-":
-        print(unknown_arg_info.format(command), end="")
+        print(unknown_arg_info.format(command), file=_stderr)
         exit(1)
     elif command == "create":
         from aidesign_blend.exes import blend_create
@@ -82,8 +90,8 @@ def _run_command():
         from aidesign_blend.exes import blend_start
         blend_start.argv_copy = argv_copy
         blend_start.run()
-    else:  # elif ! command is unknown !:
-        print(unknown_command_info.format(command), end="")
+    else:  # elif command is AnyOther:
+        print(unknown_command_info.format(command), file=_stderr)
         exit(1)
     # end if
 
@@ -91,17 +99,18 @@ def _run_command():
 def main():
     """Starts the executable."""
     global argv_copy
-    argv_length = len(sys.argv)
+    argv_length = len(_argv)
+
     assert argv_length >= 1
+
     if argv_length == 1:
-        print(info, end="")
+        print(info)
         exit(0)
-    else:  # elif argv_length > 1
-        argv_copy = copy.deepcopy(sys.argv)
+    else:  # elif argv_length > 1:
+        argv_copy = _deepcopy(_argv)
         argv_copy.pop(0)
         _run_command()
 
 
-# Let main be the script entry point
 if __name__ == '__main__':
     main()

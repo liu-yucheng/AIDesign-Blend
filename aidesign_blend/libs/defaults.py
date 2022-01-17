@@ -1,7 +1,7 @@
 """Default values.
 
 Not supposed to be changed but can be changed.
-Change if you know what you are doing.
+Change only if you know what you are doing.
 """
 
 # Copyright 2022 Yucheng Liu. GNU GPL3 license.

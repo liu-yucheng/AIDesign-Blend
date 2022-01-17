@@ -13,6 +13,7 @@ import pathlib
 import random
 import typing
 
+from os import path as ospath
 from PIL import Image as pil_image
 
 from aidesign_blend.libs import defaults
@@ -20,16 +21,36 @@ from aidesign_blend.libs import grads
 from aidesign_blend.libs import utils
 
 _Callable = typing.Callable
-_join = os.path.join
+_clamp = utils.clamp
+_DotDict = utils.DotDict
+_isfile = ospath.isfile
+_join = ospath.join
 _listdir = os.listdir
+_load_json = utils.load_json
+_logstr = utils.logstr
+_LU = grads.LU
+_now = datetime.datetime.now
+_nparray = numpy.array
+_npclip = numpy.clip
+_npmultiply = numpy.multiply
+_npseed = numpy.random.seed
+_npsingle = numpy.single
+_nptranspose = numpy.transpose
+_npubyte = numpy.ubyte
+_np_ndarray = numpy.ndarray
 _Path = pathlib.Path
+_pil_image_fromarray = pil_image.fromarray
+_pil_image_open = pil_image.open
+_Poly1V = grads.Poly1V
 _randint = random.randint
+_seed = random.seed
+_what = imghdr.what
 
 
 class Blender:
     """Blender."""
 
-    class Context(utils.DotDict):
+    class Context(_DotDict):
         """Context."""
         rand_mode = None
         """Random mode."""
@@ -117,7 +138,7 @@ class Blender:
             debug_level: the debug level
         """
         if debug_level <= self.debug_level:
-            utils.logstr(self.logs, string)
+            _logstr(self.logs, string)
 
     def logln(self, line="", debug_level=0):
         """Logs a line.
@@ -132,10 +153,11 @@ class Blender:
     def _read_config(self):
         config_loc = _join(self.proj_path, defaults.blenders_config_name)
         self.logln("Blenders config location: {}".format(config_loc), 1)
-        self.config = utils.load_json(config_loc)
+        self.config = _load_json(config_loc)
         self.logln("Completed reading blenders config", 1)
 
     def _pad_coefs_exps(self, coefs, exps):
+        """Returns coefs, exps."""
         coefs = list(coefs)
         exps = list(exps)
 
@@ -144,6 +166,7 @@ class Blender:
 
         if coefs_len == 0:
             coefs.append(float(0))
+
         if exps_len == 0:
             exps.append(float(0))
 
@@ -172,19 +195,21 @@ class Blender:
 
         manual_seed = self.config["manual_seed"]
         self.logln("manual_seed: {}".format(manual_seed), 101)
+
         if manual_seed is not None:
             manual_seed = int(manual_seed)
             manual_seed = manual_seed % (2 ** 32 - 1)
 
         if manual_seed is None:
             rand_mode = "Auto"
-            random.seed(None)
+            _seed(None)
             rand_seed = _randint(0, 2 ** 32 - 1)
         else:  # elif manual_seed is not None:
             rand_mode = "Manual"
             rand_seed = manual_seed
-        random.seed(rand_seed)
-        numpy.random.seed(rand_seed)
+
+        _seed(rand_seed)
+        _npseed(rand_seed)
 
         c.rand_mode = rand_mode
         c.rand_seed = rand_seed
@@ -205,12 +230,16 @@ class Blender:
         frag_res = self.config["frag_resolution"]
         self.logln("frag_res: {}".format(frag_res), 101)
         frag_res = int(frag_res)
+
         if frag_res < 0:
             frag_res *= -1
+
         if frag_res < 2:
             frag_res = 2
+
         if not frag_res % 2 == 0:
             frag_res += 1
+
         c.frag_width = frag_res
         c.frag_height = frag_res
         self.logln("Fragment:  Width: {}  Height: {}".format(frag_res, frag_res), 1)
@@ -218,19 +247,25 @@ class Blender:
         x_frag_count = self.config["x_frag_count"]
         self.logln("x_frag_count: {}".format(x_frag_count), 101)
         x_frag_count = int(x_frag_count)
+
         if x_frag_count < 0:
             x_frag_count *= -1
+
         if x_frag_count < 2:
             x_frag_count = 2
+
         c.x_frag_count = x_frag_count
 
         y_frag_count = self.config["y_frag_count"]
         self.logln("y_frag_count: {}".format(y_frag_count), 101)
         y_frag_count = int(y_frag_count)
+
         if y_frag_count < 0:
             y_frag_count *= -1
+
         if y_frag_count < 2:
             y_frag_count = 2
+
         c.y_frag_count = y_frag_count
 
         self.logln("Fragment count:  X: {}  Y: {}".format(x_frag_count, y_frag_count), 1)
@@ -238,8 +273,10 @@ class Blender:
         fgrid_key = "frags_grid"
         save_key = "save"
         save_fgrid = False
+
         if fgrid_key in self.config:
             fgrid_config = self.config[fgrid_key]
+
         if save_key in fgrid_config:
             save_fgrid = fgrid_config[save_key]
             save_fgrid = bool(save_fgrid)
@@ -249,15 +286,19 @@ class Blender:
         if save_fgrid:
             fgrid_padding = fgrid_config["padding"]
             fgrid_padding = int(fgrid_padding)
+
             if fgrid_padding < 0:
                 fgrid_padding *= -1
 
             fgrid_padding_bright = fgrid_config["padding_brightness"]
             fgrid_padding_bright = int(fgrid_padding_bright)
+
             if fgrid_padding_bright < 0:
                 fgrid_padding_bright *= -1
+
             if fgrid_padding_bright > 255:
                 fgrid_padding_bright = 255
+
         else:  # elif not save_fgrid:
             fgrid_padding = None
             fgrid_padding_bright = None
@@ -267,7 +308,7 @@ class Blender:
             self.logstr(
                 str(
                     "fgrid_padding: {}\n"
-                    "fgrid_padding_bri: {}\n"
+                    "fgrid_padding_bright: {}\n"
                 ).format(
                     fgrid_padding,
                     fgrid_padding_bright
@@ -290,6 +331,7 @@ class Blender:
 
         cust_grad_enabled = False
         cust_grad_key = "custom_gradient"
+
         if cust_grad_key in self.config:
             cust_grad_enabled = self.config[cust_grad_key]["enabled"]
             cust_grad_enabled = bool(cust_grad_enabled)
@@ -301,9 +343,10 @@ class Blender:
             exps = cgrad_config["exponents"]
             coefs, exps = self._pad_coefs_exps(coefs, exps)
 
-            grad_func = grads.Poly1V(coefs, exps)
+            grad_func = _Poly1V(coefs, exps)
         else:  # elif not cust_grad_enabled:
-            grad_func = grads.LU()
+            grad_func = _LU()
+        # end if
 
         c.cust_grad_enabled = cust_grad_enabled
         c.grad_func = grad_func
@@ -312,6 +355,7 @@ class Blender:
             grad_name = "custom"
         else:  # elif not cust_grad_enabled:
             grad_name = "default"
+
         self.logln("Prepared gradient function: {}".format(grad_name), 1)
         self.logln("Gradient function: \" {} \"".format(grad_func.fnstr()), 1)
 
@@ -322,17 +366,22 @@ class Blender:
         frag_names.sort()
         self.logln("frag_names: {}".format(frag_names), 102)
         frag_locs = []
+
         for name in frag_names:
             loc = _join(frags_path, name)
             frag_locs.append(loc)
 
         orig_frag_locs = frag_locs
         frag_locs = []
+
         for loc in orig_frag_locs:
-            is_file = os.path.isfile(loc)
-            is_img = is_file and imghdr.what(loc) is not None
+            is_file = _isfile(loc)
+            is_img = is_file and _what(loc) is not None
+
             if is_img:
                 frag_locs.append(loc)
+
+        # end for
         self.logln("frag_locs: {}".format(frag_locs), 102)
         frag_count = len(frag_locs)
         self.logln("frag_count: {}".format(frag_count), 101)
@@ -345,11 +394,13 @@ class Blender:
         frags_path = self.frags_path
         frag_locs = self._read_frags_path(frags_path)
         frag_count = len(frag_locs)
+
         if frag_count <= 0:
             frags_path = defaults.default_frags_path
             self.logln("Found no fragments in frags_path, defaulting frags_path to: {}".format(frags_path), 1)
             frag_locs = self._read_frags_path(frags_path)
             frag_count = len(frag_locs)
+
         frags_name = _Path(frags_path).name
 
         c.frags_path = frags_path
@@ -369,10 +420,11 @@ class Blender:
             ]
             for _ in range(y_size)
         ]
+
         return matrix
 
     def _make_numpy_2d_matrix(self, x_size, y_size):
-        matrix = numpy.ndarray((x_size, y_size), dtype=numpy.single)
+        matrix = _np_ndarray((x_size, y_size), dtype=_npsingle)
         return matrix
 
     def _grad_prog(self, idx, count):
@@ -393,6 +445,7 @@ class Blender:
         c = self.context
 
         idx_mtx = self._make_2d_matrix(c.y_frag_count, c.x_frag_count)
+
         if c.rand_frags:
             for iy in range(c.y_frag_count):
                 for ix in range(c.x_frag_count):
@@ -407,9 +460,12 @@ class Blender:
                     idx = (idx + 1) % c.frag_count
                 # end for
             # end for
+        # end if
+
         self.logln("idx_mtx: {}".format(idx_mtx), 103)
 
         flip_mtx = self._make_2d_matrix(c.y_frag_count, c.x_frag_count)
+
         if c.rand_flip:
             for iy in range(c.y_frag_count):
                 for ix in range(c.x_frag_count):
@@ -429,6 +485,8 @@ class Blender:
                     flip_mtx[iy][ix] = ""
                 # end for
             # end for
+        # end if
+
         self.logln("flip_mtx: {}".format(flip_mtx), 103)
 
         width = c.frag_width // 2
@@ -437,6 +495,7 @@ class Blender:
         ur_bmtx = self._make_numpy_2d_matrix(width, height)
         ll_bmtx = self._make_numpy_2d_matrix(width, height)
         lr_bmtx = self._make_numpy_2d_matrix(width, height)
+
         for iy in range(height):
             for ix in range(width):
                 x_prog = self._grad_prog(ix, width)
@@ -465,10 +524,10 @@ class Blender:
                 ll_remain = max_prog - ll_prog
                 lr_remain = max_prog - lr_prog
 
-                ul_remain = utils.clamp(ul_remain, 0, 1)
-                ur_remain = utils.clamp(ur_remain, 0, 1)
-                ll_remain = utils.clamp(ll_remain, 0, 1)
-                lr_remain = utils.clamp(lr_remain, 0, 1)
+                ul_remain = _clamp(ul_remain, 0, 1)
+                ur_remain = _clamp(ur_remain, 0, 1)
+                ll_remain = _clamp(ll_remain, 0, 1)
+                lr_remain = _clamp(lr_remain, 0, 1)
 
                 remain_sum = ul_remain + ur_remain + ll_remain + lr_remain
 
@@ -483,6 +542,7 @@ class Blender:
                 lr_bmtx[ix, iy] = lr_fac
             # end for
         # end for
+
         self.logstr(
             str(
                 "bmtx:\n"
@@ -517,7 +577,7 @@ class Blender:
         self.logln("Blend matrices:  Width: {}  Height: {}".format(width, height), 1)
 
     def _make_numpy_3d_matrix(self, x_size, y_size, z_size):
-        matrix = numpy.ndarray((x_size, y_size, z_size), dtype=numpy.single)
+        matrix = _np_ndarray((x_size, y_size, z_size), dtype=_npsingle)
         return matrix
 
     def _prep_canvas(self):
@@ -603,10 +663,10 @@ class Blender:
         ll_loc = c.frag_locs[ll_idx]
         lr_loc = c.frag_locs[lr_idx]
 
-        ul_img = pil_image.open(ul_loc)
-        ur_img = pil_image.open(ur_loc)
-        ll_img = pil_image.open(ll_loc)
-        lr_img = pil_image.open(lr_loc)
+        ul_img = _pil_image_open(ul_loc)
+        ur_img = _pil_image_open(ur_loc)
+        ll_img = _pil_image_open(ll_loc)
+        lr_img = _pil_image_open(lr_loc)
 
         size = c.frag_width, c.frag_height
         resample = pil_image.BICUBIC
@@ -620,21 +680,25 @@ class Blender:
 
         if "x" in ul_flip:
             ul_img = ul_img.transpose(xflip)
+
         if "y" in ul_flip:
             ul_img = ul_img.transpose(yflip)
 
         if "x" in ur_flip:
             ur_img = ur_img.transpose(xflip)
+
         if "y" in ur_flip:
             ur_img = ur_img.transpose(yflip)
 
         if "x" in ll_flip:
             ll_img = ll_img.transpose(xflip)
+
         if "y" in ll_flip:
             ll_img = ll_img.transpose(yflip)
 
         if "x" in lr_flip:
             lr_img = lr_img.transpose(xflip)
+
         if "y" in lr_flip:
             lr_img = lr_img.transpose(yflip)
 
@@ -643,16 +707,16 @@ class Blender:
         ll_img = ll_img.crop(ll_box)
         lr_img = lr_img.crop(lr_box)
 
-        ul_np = numpy.array(ul_img, dtype=numpy.single)
-        ur_np = numpy.array(ur_img, dtype=numpy.single)
-        ll_np = numpy.array(ll_img, dtype=numpy.single)
-        lr_np = numpy.array(lr_img, dtype=numpy.single)
+        ul_np = _nparray(ul_img, dtype=_npsingle)
+        ur_np = _nparray(ur_img, dtype=_npsingle)
+        ll_np = _nparray(ll_img, dtype=_npsingle)
+        lr_np = _nparray(lr_img, dtype=_npsingle)
 
         axis_ord = [1, 0, 2]
-        ul_np = numpy.transpose(ul_np, axis_ord)
-        ur_np = numpy.transpose(ur_np, axis_ord)
-        ll_np = numpy.transpose(ll_np, axis_ord)
-        lr_np = numpy.transpose(lr_np, axis_ord)
+        ul_np = _nptranspose(ul_np, axis_ord)
+        ur_np = _nptranspose(ur_np, axis_ord)
+        ll_np = _nptranspose(ll_np, axis_ord)
+        lr_np = _nptranspose(lr_np, axis_ord)
         self.logln("Transposed the UL, UR, LL, LR images with axis order: {}".format(axis_ord), 103)
 
         self.logstr(
@@ -688,22 +752,22 @@ class Blender:
             103
         )
 
-        block_r = numpy.multiply(c.ul_bmtx, ul_np[:, :, 0]) + \
-            numpy.multiply(c.ur_bmtx, ur_np[:, :, 0]) + \
-            numpy.multiply(c.ll_bmtx, ll_np[:, :, 0]) + \
-            numpy.multiply(c.lr_bmtx, lr_np[:, :, 0])
-        block_g = numpy.multiply(c.ul_bmtx, ul_np[:, :, 1]) + \
-            numpy.multiply(c.ur_bmtx, ur_np[:, :, 1]) + \
-            numpy.multiply(c.ll_bmtx, ll_np[:, :, 1]) + \
-            numpy.multiply(c.lr_bmtx, lr_np[:, :, 1])
-        block_b = numpy.multiply(c.ul_bmtx, ul_np[:, :, 2]) + \
-            numpy.multiply(c.ur_bmtx, ur_np[:, :, 2]) + \
-            numpy.multiply(c.ll_bmtx, ll_np[:, :, 2]) + \
-            numpy.multiply(c.lr_bmtx, lr_np[:, :, 2])
+        block_r = _npmultiply(c.ul_bmtx, ul_np[:, :, 0]) + \
+            _npmultiply(c.ur_bmtx, ur_np[:, :, 0]) + \
+            _npmultiply(c.ll_bmtx, ll_np[:, :, 0]) + \
+            _npmultiply(c.lr_bmtx, lr_np[:, :, 0])
+        block_g = _npmultiply(c.ul_bmtx, ul_np[:, :, 1]) + \
+            _npmultiply(c.ur_bmtx, ur_np[:, :, 1]) + \
+            _npmultiply(c.ll_bmtx, ll_np[:, :, 1]) + \
+            _npmultiply(c.lr_bmtx, lr_np[:, :, 1])
+        block_b = _npmultiply(c.ul_bmtx, ul_np[:, :, 2]) + \
+            _npmultiply(c.ur_bmtx, ur_np[:, :, 2]) + \
+            _npmultiply(c.ll_bmtx, ll_np[:, :, 2]) + \
+            _npmultiply(c.lr_bmtx, lr_np[:, :, 2])
 
-        numpy.clip(block_r, 0, 255, block_r)
-        numpy.clip(block_g, 0, 255, block_g)
-        numpy.clip(block_b, 0, 255, block_b)
+        _npclip(block_r, 0, 255, block_r)
+        _npclip(block_g, 0, 255, block_g)
+        _npclip(block_b, 0, 255, block_b)
 
         self.logstr(
             str(
@@ -738,8 +802,10 @@ class Blender:
                 needs_log = curr_block + 1 == 1
                 needs_log = needs_log or (curr_block + 1) % 180 == 0
                 needs_log = needs_log or curr_block + 1 == total_block_count
+
                 if needs_log:
                     self.logln("Blended block {} / {}".format(curr_block + 1, total_block_count), 1)
+
                 curr_block += 1
             # end for
         # end for
@@ -750,13 +816,13 @@ class Blender:
         c = self.context
 
         axis_ord = [1, 0, 2]
-        c.canvas = numpy.transpose(c.canvas, axis_ord)
+        c.canvas = _nptranspose(c.canvas, axis_ord)
         self.logln("Transposed the canvas with axis order {}".format(axis_ord), 101)
 
-        canvas: numpy.ndarray = c.canvas
-        canvas = canvas.astype(numpy.ubyte)
-        img = pil_image.fromarray(canvas, "RGB")
-        now = datetime.datetime.now()
+        canvas: _np_ndarray = c.canvas
+        canvas = canvas.astype(_npubyte)
+        img = _pil_image_fromarray(canvas, "RGB")
+        now = _now()
         timestamp = str(
             f"{now.year:04}{now.month:02}{now.day:02}-{now.hour:02}{now.minute:02}{now.second:02}-"
             f"{now.microsecond:06}"
@@ -772,7 +838,7 @@ class Blender:
         idx = c.idx_mtx[block_y][block_x]
         loc = c.frag_locs[idx]
 
-        img = pil_image.open(loc)
+        img = _pil_image_open(loc)
 
         size = c.frag_width, c.frag_height
         resample = pil_image.BICUBIC
@@ -781,14 +847,16 @@ class Blender:
         xflip = pil_image.FLIP_TOP_BOTTOM
         yflip = pil_image.FLIP_LEFT_RIGHT
         flip = c.flip_mtx[block_y][block_x]
+
         if "x" in flip:
             img = img.transpose(xflip)
+
         if "y" in flip:
             img = img.transpose(yflip)
 
-        img_np = numpy.array(img, dtype=numpy.single)
+        img_np = _nparray(img, dtype=_npsingle)
         axis_ord = [1, 0, 2]
-        img_np = numpy.transpose(img_np, axis_ord)
+        img_np = _nptranspose(img_np, axis_ord)
         self.logln("Transposed the image with axis order: {}".format(axis_ord), 103)
 
         self.logstr(
@@ -823,11 +891,13 @@ class Blender:
                     needs_log = curr_block + 1 == 1
                     needs_log = needs_log or (curr_block + 1) % 360 == 0
                     needs_log = needs_log or curr_block + 1 == total_block_count
+
                     if needs_log:
                         self.logln(
                             "Rendered fragments grid block: {} / {}".format(curr_block + 1, total_block_count), 1
                         )
                     # end if
+
                     curr_block += 1
                 # end for
             # end for
@@ -840,13 +910,13 @@ class Blender:
 
         if c.save_fgrid:
             axis_ord = [1, 0, 2]
-            c.fgrid = numpy.transpose(c.fgrid, axis_ord)
+            c.fgrid = _nptranspose(c.fgrid, axis_ord)
             self.logln("Transposed the fragments grid with axis order {}".format(axis_ord), 101)
 
-            fgrid: numpy.ndarray = c.fgrid
-            fgrid = fgrid.astype(numpy.ubyte)
-            img = pil_image.fromarray(fgrid, "RGB")
-            now = datetime.datetime.now()
+            fgrid: _np_ndarray = c.fgrid
+            fgrid = fgrid.astype(_npubyte)
+            img = _pil_image_fromarray(fgrid, "RGB")
+            now = _now()
             timestamp = str(
                 f"{now.year:04}{now.month:02}{now.day:02}-{now.hour:02}{now.minute:02}{now.second:02}-"
                 f"{now.microsecond:06}"

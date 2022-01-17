@@ -5,6 +5,10 @@
 # First added by username: liu-yucheng
 # Last updated by username: liu-yucheng
 
+from aidesign_blend.libs import utils
+
+_clamp = utils.clamp
+
 
 class _GradFunc:
 
@@ -22,24 +26,7 @@ class _GradFunc:
         Returns:
             result: the clamped result
         """
-        inval = float(inval)
-        bound1 = float(bound1)
-        bound2 = float(bound2)
-
-        if bound1 < bound2:
-            floor = bound1
-            ceil = bound2
-        else:  # elif bound2 <= bound1:
-            floor = bound2
-            ceil = bound1
-
-        outval = inval
-        if outval < floor:
-            outval = floor
-        if outval > ceil:
-            outval = ceil
-
-        result = outval
+        result = _clamp(inval, bound1, bound2)
         return result
 
     def __init__(self):
@@ -112,6 +99,7 @@ class _GradFunc:
 class LU(_GradFunc):
     """The linear unity function.
 
+    f(x) = x.
     The default gradient function.
     """
 
@@ -149,10 +137,13 @@ class Poly1V(_GradFunc):
 
         coefs_len = len(coefs)
         exps_len = len(exps)
+
         if coefs_len == 0:
             raise ValueError("Argument coefs needs to be non-empty")
+
         if exps_len == 0:
             raise ValueError("Argument exps needs to be non-empty")
+
         if coefs_len != exps_len:
             err_info = str(
                 "Arguments coefs and exps need to have the same length\n"
@@ -164,8 +155,8 @@ class Poly1V(_GradFunc):
             )
             raise ValueError(err_info)
         # end if
-        term_count = coefs_len
 
+        term_count = coefs_len
         coefs = [float(elem) for elem in coefs]
         exps = [float(elem) for elem in exps]
 
@@ -186,8 +177,8 @@ class Poly1V(_GradFunc):
             result: the result
         """
         inval = self.inval_clamp(inval)
-
         outval = float(0)
+
         for idx in range(self.term_count):
             coef = self.coefs[idx]
             exp = self.exps[idx]
@@ -195,8 +186,8 @@ class Poly1V(_GradFunc):
             term_val = coef * (inval ** exp)
             outval += term_val
         # end for
-        outval = self.outval_clamp(outval)
 
+        outval = self.outval_clamp(outval)
         result = outval
         return result
 
@@ -208,14 +199,16 @@ class Poly1V(_GradFunc):
         """
         lines = []
         lines.append("f(x) =")
+
         for idx in range(self.term_count):
             coef = self.coefs[idx]
             exp = self.exps[idx]
 
             term_str = "  {} * (x ^ {}) +".format(coef, exp)
             lines.append(term_str)
-        lines = [str(elem) for elem in lines]
+        # end for
 
+        lines = [str(elem) for elem in lines]
         result = "\n".join(lines)
         result = result[:-2]
         return result

@@ -31,7 +31,7 @@ usage = str(
 info = str(
     f"App data is at: {{}}\n"
     f"\"blend start\" status:\n"
-    f"{{}}\n"
+    f"{{}}"
 )
 """Primary info to display."""
 

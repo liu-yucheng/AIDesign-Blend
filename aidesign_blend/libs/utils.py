@@ -45,6 +45,7 @@ class TimedInput:
     Python "native" and platform independent timed input command prompt.
     """
 
+    # Part of LYC-PythonUtils
     # Copyright 2022 Yucheng Liu. GNU GPL3 license.
     # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
 
@@ -106,6 +107,7 @@ class DotDict:
     4 trailing underscores added to all public method names to avoid key or attribute naming confusions.
     """
 
+    # Part of LYC-PythonUtils
     # Copyright 2022 Yucheng Liu. GNU GPL3 license.
     # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
 
@@ -327,6 +329,11 @@ def load_json(from_file):
     Returns:
         result: the dict
     """
+
+    # Part of LYC-PythonUtils
+    # Copyright 2022 Yucheng Liu. GNU GPL3 license.
+    # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
+
     from_file = str(from_file)
 
     file = open(from_file, "r")
@@ -344,6 +351,11 @@ def save_json(from_dict, to_file):
         from_dict: the dict object
         to_file: the JSON file location
     """
+
+    # Part of LYC-PythonUtils
+    # Copyright 2022 Yucheng Liu. GNU GPL3 license.
+    # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
+
     from_dict = dict(from_dict)
     to_file = str(to_file)
 
@@ -359,6 +371,11 @@ def logstr(logs, string=""):
         logs: the log file objects
         string: the string to log
     """
+
+    # Part of LYC-PythonUtils
+    # Copyright 2022 Yucheng Liu. GNU GPL3 license.
+    # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
+
     logs = list(logs)
     string = str(string)
 
@@ -374,6 +391,11 @@ def logln(logs, line=""):
         logs: the log file objects
         line: the line to log
     """
+
+    # Part of LYC-PythonUtils
+    # Copyright 2022 Yucheng Liu. GNU GPL3 license.
+    # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
+
     logs = list(logs)
     line = str(line)
 
@@ -393,6 +415,7 @@ def rand_bool():
         result: the random boolean
     """
 
+    # Part of LYC-PythonUtils
     # Copyright 2022 Yucheng Liu. GNU GPL3 license.
     # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
 

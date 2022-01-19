@@ -51,7 +51,7 @@ Basically, the version name of this app is in the form of:
     app.
 ```
 
-## Version tags
+## Version Tags
 
 ```text
 The version tags of this repo has the form of a letter "v" followed by a

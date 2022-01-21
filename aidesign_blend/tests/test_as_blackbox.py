@@ -559,12 +559,12 @@ class TestBlendStart(_TestCmd):
             fail_msg = "{} is not a file; {}".format(loc, format_incorrect_info)
             self.assertTrue(isfile, fail_msg)
 
-        regexs_exists = [
+        regexs_exist = [
             _re_compile(r"Blended-From-.*-Time-.*\.jpg"),
             _re_compile(r"Frags-From-.*-Time-.*\.jpg")
         ]
 
-        for regex in regexs_exists:
+        for regex in regexs_exist:
             has_matches = False
 
             for fname in contents:

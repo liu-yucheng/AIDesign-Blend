@@ -515,9 +515,9 @@ class TestBlendStart(_TestCmd):
         _rmtree(_frags_path, ignore_errors=True)
         _rmtree(_proj_path, ignore_errors=True)
 
-    def test_normal(self):
+    def test_norm(self):
         """Tests the normal use case."""
-        method_name = self.test_normal.__name__
+        method_name = self.test_norm.__name__
         self._log_method_start(method_name)
 
         cmd = "blend start"

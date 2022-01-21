@@ -542,14 +542,14 @@ class TestBlendStart(_TestCmd):
         fail_msg = "{} is not a directory; {}".format(_proj_path, format_incorrect_info)
         self.assertTrue(isdir, fail_msg)
 
-        model_fnames = [
+        fnames = [
             "blenders_config.json",
             "log.txt"
         ]
 
         contents = _listdir(_proj_path)
 
-        for fname in model_fnames:
+        for fname in fnames:
             exists = fname in contents
             fail_msg = "{} is not in {}; {}".format(fname, _proj_path, format_incorrect_info)
             self.assertTrue(exists, fail_msg)
@@ -559,12 +559,12 @@ class TestBlendStart(_TestCmd):
             fail_msg = "{} is not a file; {}".format(loc, format_incorrect_info)
             self.assertTrue(isfile, fail_msg)
 
-        model_fname_regexs = [
+        regexs_exists = [
             _re_compile(r"Blended-From-.*-Time-.*\.jpg"),
             _re_compile(r"Frags-From-.*-Time-.*\.jpg")
         ]
 
-        for regex in model_fname_regexs:
+        for regex in regexs_exists:
             has_matches = False
 
             for fname in contents:

@@ -238,12 +238,12 @@ class _TestCmd(_TestCase):
         self._log_cmdout_end(cmd, stream_name)
 
     def _backup_app_data(self):
-        train_status = _load_json(_start_status_loc)
-        _save_json(train_status, _start_status_backup_loc)
+        status = _load_json(_start_status_loc)
+        _save_json(status, _start_status_backup_loc)
 
     def _restore_app_data(self):
-        train_status = _load_json(_start_status_backup_loc)
-        _save_json(train_status, _start_status_loc)
+        status = _load_json(_start_status_backup_loc)
+        _save_json(status, _start_status_loc)
 
         if _exists(_start_status_backup_loc):
             _remove(_start_status_backup_loc)

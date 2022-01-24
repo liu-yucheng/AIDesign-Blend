@@ -123,7 +123,7 @@ Frags path: {frags_path}
     _logln(all_logs, start_info)
 
     try:
-        debug_level = 1
+        debug_level = 1  # NOTE: Check before each release
         blender = _Blender(frags_path, proj_path, all_logs, debug_level)
         blender.prep()
         blender.blend()

@@ -1,6 +1,7 @@
 {
     "manual_seed": null,
     "random_frags": true,
+    "avoid_random_duplicates": true,
     "random_flipping": true,
     "frag_resolution": 64,
     "x_frag_count": 4,

@@ -31,7 +31,7 @@ def main():
     """Main function."""
     _setup(
         name="aidesign-blend",
-        version="1.0.4",
+        version="1.1.0",
         description="AIDesign Image Fragments Blending Application",
         author="Yucheng Liu (From The AIDesign Team)",
         packages=_find_packages(),
@@ -55,6 +55,8 @@ def main():
     else:  # elif _exists(app_data_path):
         print("App data already exists at: {}".format(app_data_path))
 
+    # Check main command availability
+    from aidesign_blend.exes import blend as _
     print("Commands available: blend")
 
 # Top level code

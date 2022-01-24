@@ -16,9 +16,15 @@ _stderr = sys.stderr
 
 # Initialize _version
 _version = "<unknown version>"
-_packages = _require("aidesign-blend")
-if len(_packages) > 0:
-    _version = _packages[0].version
+
+try:
+    _packages = _require("aidesign-blend")
+
+    if len(_packages) > 0:
+        _version = _packages[0].version
+except Exception as _:
+    pass
+# end try
 
 brief_usage = "blend <command> ..."
 """Brief usage."""
@@ -34,7 +40,7 @@ info = str(
 )
 """Primary info to display."""
 
-unknown_command_info = str(
+unknown_cmd_info = str(
     f"\"{brief_usage}\" gets an unknown command: {{}}\n"
     f"{usage}"
 )
@@ -58,7 +64,7 @@ def _run_command():
     command = str(command)
 
     if len(command) <= 0:
-        print(unknown_command_info.format(command), file=_stderr)
+        print(unknown_cmd_info.format(command), file=_stderr)
         exit(1)
     elif command[0] == "-":
         print(unknown_arg_info.format(command), file=_stderr)
@@ -92,7 +98,7 @@ def _run_command():
         blend_start.argv_copy = argv_copy
         blend_start.run()
     else:  # elif command is AnyOther:
-        print(unknown_command_info.format(command), file=_stderr)
+        print(unknown_cmd_info.format(command), file=_stderr)
         exit(1)
     # end if
 

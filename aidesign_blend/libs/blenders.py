@@ -44,6 +44,7 @@ _pil_image_open = pil_image.open
 _Poly1V = grads.Poly1V
 _randint = random.randint
 _seed = random.seed
+_shuffle = random.shuffle
 _what = imghdr.what
 
 
@@ -58,6 +59,8 @@ class Blender:
         """Random seed."""
         rand_frags = None
         """Random fragments."""
+        avoid_rand_dups = None
+        """Avoid random fragment duplicates."""
         rand_flip = None
         """Random flipping."""
         save_fgrid = None
@@ -220,6 +223,17 @@ class Blender:
         rand_frags = bool(rand_frags)
         c.rand_frags = rand_frags
         self.logln("Random fragments: {}".format(rand_frags), 1)
+
+        avoid_rand_dups_key = "avoid_random_duplicates"
+        avoid_rand_dups = False
+
+        if avoid_rand_dups_key in self.config:
+            avoid_rand_dups = self.config[avoid_rand_dups_key]
+            self.logln("avoid_rand_dups: {}".format(avoid_rand_dups), 101)
+
+        avoid_rand_dups = bool(avoid_rand_dups)
+        c.avoid_rand_dups = avoid_rand_dups
+        self.logln("Avoid random fragment duplicates: {}".format(avoid_rand_dups), 1)
 
         rand_flip = self.config["random_flipping"]
         self.logln("random_flipping: {}".format(rand_flip), 101)
@@ -441,15 +455,40 @@ class Blender:
         prog = grad_func(line_prog)
         return prog
 
+    def _gen_rand_frag_idxs(self):
+        c = self.context
+
+        idxs = [idx for idx in range(c.frag_count)]
+        _shuffle(idxs)
+
+        result = idxs
+        return result
+
     def _prep_matrices(self):
         c = self.context
 
         idx_mtx = self._make_2d_matrix(c.y_frag_count, c.x_frag_count)
 
+        if c.avoid_rand_dups:
+            remain_idxs = self._gen_rand_frag_idxs()
+        else:  # elif not c.avoid_rand_dups:
+            remain_idxs = None
+
         if c.rand_frags:
             for iy in range(c.y_frag_count):
                 for ix in range(c.x_frag_count):
-                    idx_mtx[iy][ix] = _randint(0, c.frag_count - 1)
+
+                    if c.avoid_rand_dups:
+                        remain_idxs_len = len(remain_idxs)
+
+                        if remain_idxs_len <= 0:
+                            remain_idxs = self._gen_rand_frag_idxs()
+
+                        idx_mtx[iy][ix] = remain_idxs.pop(0)
+                    else:  # elif not c.avoid_rand_dups:
+                        idx_mtx[iy][ix] = _randint(0, c.frag_count - 1)
+                    # end if
+
                 # end for
             # end for
         else:  # elif not c.rand_frags:

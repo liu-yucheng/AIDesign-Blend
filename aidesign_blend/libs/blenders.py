@@ -21,7 +21,7 @@ from aidesign_blend.libs import grads
 from aidesign_blend.libs import utils
 
 _Callable = typing.Callable
-_clamp = utils.clamp
+_clamp = utils.clamp_float
 _DotDict = utils.DotDict
 _isfile = ospath.isfile
 _join = ospath.join
@@ -43,6 +43,7 @@ _pil_image_fromarray = pil_image.fromarray
 _pil_image_open = pil_image.open
 _Poly1V = grads.Poly1V
 _randint = random.randint
+_rand_bool = utils.rand_bool
 _seed = random.seed
 _shuffle = random.shuffle
 _what = imghdr.what
@@ -508,8 +509,8 @@ class Blender:
         if c.rand_flip:
             for iy in range(c.y_frag_count):
                 for ix in range(c.x_frag_count):
-                    flip_x = utils.rand_bool()
-                    flip_y = utils.rand_bool()
+                    flip_x = _rand_bool()
+                    flip_y = _rand_bool()
                     flip = ""
                     if flip_x:
                         flip += "x"

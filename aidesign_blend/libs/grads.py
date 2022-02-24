@@ -7,7 +7,7 @@
 
 from aidesign_blend.libs import utils
 
-_clamp = utils.clamp
+_clamp = utils.clamp_float
 
 
 class _GradFunc:

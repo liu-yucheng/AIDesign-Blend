@@ -17,6 +17,7 @@ from aidesign_blend.libs import utils
 _argv = sys.argv
 _deepcopy = copy.deepcopy
 _exists = ospath.exists
+_isabs = ospath.isabs
 _isdir = ospath.isdir
 _join = ospath.join
 _load_json = utils.load_json
@@ -78,7 +79,10 @@ def run():
     elif argv_copy_length == 1:
         path_to_frags = argv_copy.pop(0)
         path_to_frags = str(path_to_frags)
-        path_to_frags = _join(".", path_to_frags)
+
+        if not _isabs(path_to_frags):
+            path_to_frags = _join(".", path_to_frags)
+
         path_to_frags = str(_Path(path_to_frags).resolve())
 
         if not _exists(path_to_frags):

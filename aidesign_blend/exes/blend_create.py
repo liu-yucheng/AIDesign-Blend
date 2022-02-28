@@ -18,6 +18,7 @@ _argv = sys.argv
 _copytree = shutil.copytree
 _deepcopy = copy.deepcopy
 _exists = ospath.exists
+_isabs = ospath.isabs
 _isdir = ospath.isdir
 _join = ospath.join
 _Path = pathlib.Path
@@ -78,7 +79,9 @@ def run():
     elif argv_copy_length == 1:
         path_to_proj = argv_copy.pop(0)
         path_to_proj = str(path_to_proj)
-        path_to_proj = _join(".", path_to_proj)
+
+        if not _isabs(path_to_proj):
+            path_to_proj = _join(".", path_to_proj)
 
         proj_exists = _exists(path_to_proj)
         proj_is_dir = _isdir(path_to_proj)

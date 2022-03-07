@@ -283,7 +283,9 @@ class Blender:
 
         c.y_frag_count = y_frag_count
 
-        self.logln("Fragment count:  X: {}  Y: {}".format(x_frag_count, y_frag_count), 1)
+        total_frag_count = x_frag_count * y_frag_count
+
+        self.logln("Fragment count:  X: {}  Y: {}  Total: {}".format(x_frag_count, y_frag_count, total_frag_count), 1)
 
         fgrid_key = "frags_grid"
         save_key = "save"
@@ -829,9 +831,15 @@ class Blender:
         c.canvas[canvas_x1: canvas_x2, canvas_y1: canvas_y2, 1] = block_g
         c.canvas[canvas_x1: canvas_x2, canvas_y1: canvas_y2, 2] = block_b
 
-    def _blend(self):
+    def _blend_blocks(self):
         c = self.context
 
+        info = str(
+            "Started blending blocks\n"
+            "-"
+        )
+
+        self.logln(info)
         total_block_count = (c.y_frag_count - 1) * (c.x_frag_count - 1)
         curr_block = 0
 
@@ -852,7 +860,14 @@ class Blender:
 
         self.logln("Canvas: {}".format(c.canvas), 104)
 
-    def _save_blended(self):
+        info = str(
+            "-\n"
+            "Completed blending blocks"
+        )
+
+        self.logln(info)
+
+    def _save_blended_blocks(self):
         c = self.context
 
         axis_ord = [1, 0, 2]
@@ -870,7 +885,7 @@ class Blender:
         img_name = "Blended-From-{}-Time-{}.jpg".format(c.frags_name, timestamp)
         img_loc = _join(self.proj_path, img_name)
         img.save(img_loc, quality=95)
-        self.logln("Saved the blended image to: {}".format(img_loc), 1)
+        self.logln("Saved blended blocks at: {}".format(img_loc), 1)
 
     def _render_fgrid_block(self, block_y, block_x):
         c = self.context
@@ -920,6 +935,12 @@ class Blender:
         c = self.context
 
         if c.save_fgrid:
+            info = str(
+                "Started rendering fragments grid\n"
+                "-"
+            )
+
+            self.logln(info)
             total_block_count = c.y_frag_count * c.x_frag_count
             curr_block = 0
             c.fgrid.fill(c.fgrid_padding_bright)
@@ -943,6 +964,13 @@ class Blender:
             # end for
 
             self.logln("Fragments grid: {}".format(c.fgrid), 104)
+
+            info = str(
+                "-\n"
+                "Completed rendering fragments grid"
+            )
+
+            self.logln(info)
         # end if
 
     def _save_fgrid(self):
@@ -964,11 +992,17 @@ class Blender:
             img_name = "Frags-From-{}-Time-{}.jpg".format(c.frags_name, timestamp)
             img_loc = _join(self.proj_path, img_name)
             img.save(img_loc, quality=95)
-            self.logln("Saved the frags grid to: {}".format(img_loc), 1)
+            self.logln("Saved fragments grid at: {}".format(img_loc), 1)
         # end if
 
     def prep(self):
         """Prepares for blending."""
+        info = str(
+            "Blender started preparation\n"
+            "-"
+        )
+
+        self.logln(info)
         self._read_config()
         self._parse_config()
         self._prep_frags()
@@ -976,15 +1010,33 @@ class Blender:
         self._prep_canvas()
         self._prep_fgrid()
         self._tweak_pil_safety()
-        self.logln("Completed preparing the blender")
+
+        info = str(
+            "-\n"
+            "Blender completed preparation"
+        )
+
+        self.logln(info)
 
     def blend(self):
         """Blends the frags into a large picture.
 
         Blends the frags in self.frags_path into a large picture in self.project_path.
         """
-        self._blend()
-        self._save_blended()
+        info = str(
+            "Started blending\n"
+            "-"
+        )
+
+        self.logln(info)
+        self._blend_blocks()
+        self._save_blended_blocks()
         self._render_fgrid()
         self._save_fgrid()
-        self.logln("Completed blending")
+
+        info = str(
+            "-\n"
+            "Completed blending"
+        )
+
+        self.logln(info)

@@ -14,6 +14,8 @@ from os import path as ospath
 
 from aidesign_blend.libs import defaults
 
+# Aliases
+
 _argv = sys.argv
 _copytree = shutil.copytree
 _deepcopy = copy.deepcopy
@@ -24,6 +26,8 @@ _join = ospath.join
 _Path = pathlib.Path
 _stderr = sys.stderr
 
+# -
+
 brief_usage = "blend create <path-to-project>"
 """Brief usage."""
 
@@ -33,8 +37,13 @@ usage = str(
 )
 """Usage."""
 
+# Nominal info strings
+
 info = f"Created a blend project at {{}}"
 """Primary info to display."""
+
+# -
+# Error info strings
 
 too_few_args_info = str(
     f"\"{brief_usage}\" gets too few arguments\n"
@@ -64,6 +73,8 @@ proj_is_not_dir_info = str(
 )
 """Info to display when the project exists but not as a directory."""
 
+# End of error info strings
+
 argv_copy = None
 """Consumable copy of sys.argv."""
 
@@ -77,8 +88,8 @@ def run():
         print(too_few_args_info.format(argv_copy_length), file=_stderr)
         exit(1)
     elif argv_copy_length == 1:
-        path_to_proj = argv_copy.pop(0)
-        path_to_proj = str(path_to_proj)
+        assert argv_copy is not None
+        path_to_proj = str(argv_copy.pop(0))
 
         if not _isabs(path_to_proj):
             path_to_proj = _join(".", path_to_proj)

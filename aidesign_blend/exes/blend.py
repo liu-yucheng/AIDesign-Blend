@@ -1,4 +1,4 @@
-"""The "blend" command executable."""
+""""blend" command executable."""
 
 # Copyright 2022 Yucheng Liu. GNU GPL3 license.
 # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
@@ -9,12 +9,16 @@ import copy
 import pkg_resources
 import sys
 
+# Aliases
+
 _argv = sys.argv
 _deepcopy = copy.deepcopy
 _require = pkg_resources.require
 _stderr = sys.stderr
 
+# -
 # Initialize _version
+
 _version = "<unknown version>"
 
 try:
@@ -26,13 +30,18 @@ except Exception as _:
     pass
 # end try
 
+# -
+
 brief_usage = "blend <command> ..."
 """Brief usage."""
+
 usage = str(
     f"Usage: {brief_usage}\n"
     f"Help: blend help"
 )
 """Usage."""
+
+# Nominal info strings
 
 info = str(
     f"AIDesign-Blend (aidesign-blend) {_version}\n"
@@ -40,16 +49,22 @@ info = str(
 )
 """Primary info to display."""
 
+# -
+# Error info strings
+
 unknown_cmd_info = str(
     f"\"{brief_usage}\" gets an unknown command: {{}}\n"
     f"{usage}"
 )
 """Info to display when the executable gets an unknown command."""
+
 unknown_arg_info = str(
     f"\"{brief_usage}\" gets an unknown argument: {{}}\n"
     f"{usage}"
 )
 """Info to display when the executable gets an unknown argument."""
+
+# -
 
 argv_copy = None
 """Consumable copy of sys.argv."""

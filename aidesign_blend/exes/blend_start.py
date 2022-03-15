@@ -17,6 +17,8 @@ from aidesign_blend.libs import blenders
 from aidesign_blend.libs import defaults
 from aidesign_blend.libs import utils
 
+# Aliases
+
 _argv = sys.argv
 _Blender = blenders.Blender
 _deepcopy = copy.deepcopy
@@ -31,15 +33,21 @@ _stderr = sys.stderr
 _stdout = sys.stdout
 _TimedInput = utils.TimedInput
 
+# -
+
 brief_usage = "blend start"
 """Brief usage."""
+
 usage = str(
     f"Usage: {brief_usage}\n"
-    "Help: gan help"
+    f"Help: gan help"
 )
 """Usage."""
+
 timeout = float(30)
 """Timeout."""
+
+# Nominal info strings
 
 info = fr"""
 
@@ -49,20 +57,24 @@ info = fr"""
 Please confirm the above session setup
 Do you want to continue? [ Y (Yes) | n (no) ]: < default: Yes, timeout: {timeout} seconds >
 
-"""
+""".strip()
 """Primary info to display."""
-info = info.strip()
+
+# -
+# Error info strings
 
 will_start_session_info = str(
     f"Will start a session\n"
     f"---- The following will be logged to: {{}} ----"
 )
 """Info to display when the session starts."""
+
 completed_session_info = str(
     f"---- The above has been logged to: {{}} ----\n"
     f"Completed the session"
 )
 """Info to display when the session completes."""
+
 aborted_session_info = "Aborted the session"
 """Info to display when the user aborts the session."""
 
@@ -72,23 +84,53 @@ too_many_args_info = str(
     f"{usage}"
 )
 """Info to display when getting too many arguments."""
+
 none_frags_info = str(
     f"\"{brief_usage}\" finds that the frags_path selection is None\n"
     f"Please select the frags with the \"blend frags <path-to-frags>\" command\n"
     f"{usage}"
 )
 """Info to display when the frags selection is None."""
+
 none_proj_info = str(
     f"\"{brief_usage}\" finds that the project_path selection is None\n"
     f"Please select a project with the \"blend project <path-to-project>\" command\n"
     f"{usage}"
 )
 """Info to display when the project selection is None."""
+
 stopped_session_info = str(
     f"---- The above has been logged to: {{}} ----\n"
     f"Stopped the session"
 )
 """Info to display when the session stops from an exception."""
+
+# End of error info strings
+# Session info strings
+
+session_header_info = str(
+    f"AIDesign-Blend session\n"
+    f"Project path: {{}}\n"
+    f"Frags path: {{}}\n"
+    f"-"
+)
+"""Session header info."""
+
+session_stop_trailer_info = str(
+    f"-\n"
+    f"Execution stopped after: {{}} (days, hours: minutes: seconds)\n"
+    f"End of AIDesign-Blend session (stopped)"
+)
+"""Session trailer info to display after execution stops."""
+
+session_comp_trailer_info = str(
+    f"-\n"
+    f"Execution time: {{}} (days, hours: minutes: seconds)\n"
+    f"End of AIDesign-Blend session"
+)
+"""Session trailer info to display after execution completes."""
+
+# -
 
 argv_copy = None
 """Consumable copy of sys.argv."""
@@ -109,18 +151,7 @@ def _start_session():
     log_file: _IO = open(log_loc, "a+")
     all_logs = [_stdout, log_file]
     err_logs = [_stderr, log_file]
-
-    start_info = fr"""
-
-AIDesign-Blend session
-Project path: {proj_path}
-Frags path: {frags_path}
--
-
-    """
-    start_info = start_info.strip()
-
-    _logln(all_logs, start_info)
+    _logln(all_logs, session_header_info.format(proj_path, frags_path))
 
     try:
         debug_level = 1  # NOTE: Check before each release
@@ -130,36 +161,39 @@ Frags path: {frags_path}
     except BaseException as base_exception:
         _logstr(err_logs, _format_exc())
         end_time = _now()
-        execution_time = end_time - start_time
-
-        stop_info = fr"""
-
--
-Execution stopped after: {execution_time} (days, hours: minutes: seconds)
-End of AIDesign-Blend session (stopped)
-
-        """
-        stop_info = stop_info.strip()
-
-        _logln(all_logs, stop_info)
+        exe_time = end_time - start_time
+        _logln(all_logs, session_stop_trailer_info.format(exe_time))
         log_file.close()
         raise base_exception
     # end try
 
     end_time = _now()
-    execution_time = end_time - start_time
-
-    end_info = fr"""
-
--
-Execution time: {execution_time} (days, hours: minutes: seconds)
-End of AIDesign-Blend session
-
-    """
-    end_info = end_info.strip()
-
-    _logln(all_logs, end_info)
+    exe_time = end_time - start_time
+    _logln(all_logs, session_comp_trailer_info.format(exe_time))
     log_file.close()
+
+
+def _append_status_to_lines(status, lines, tab_width1, tab_width2):
+    status: dict = status
+    lines: list = lines
+    tab_width1 = int(tab_width1)
+    tab_width2 = int(tab_width2)
+
+    tab1 = " " * tab_width1
+
+    for key in status:
+        key = str(key)
+        key_len = len(key)
+
+        val = status[key]
+        val = str(val)
+
+        tab_actual_width2 = tab_width2 - key_len % tab_width2
+        tab2 = " " * tab_actual_width2
+
+        line = f"{tab1}{key}:{tab2}{val}"
+        lines.append(line)
+    # end for
 
 
 def run():
@@ -173,9 +207,9 @@ def run():
     assert argv_copy_length >= 0
 
     if argv_copy_length == 0:
-        blend_start_status = _load_json(defaults.blend_start_status_loc)
-        frags_path = blend_start_status["frags_path"]
-        proj_path = blend_start_status["project_path"]
+        start_status = _load_json(defaults.blend_start_status_loc)
+        frags_path = start_status["frags_path"]
+        proj_path = start_status["project_path"]
 
         if frags_path is None:
             print(none_frags_info, file=_stderr)
@@ -190,20 +224,12 @@ def run():
 
         tab_width1 = 4
         tab_width2 = 8
-        tab1 = " " * tab_width1
-        blend_start_lines = []
-        blend_start_info = ""
-
-        for key in blend_start_status:
-            tab2 = " " * (tab_width2 - len(key) % tab_width2)
-            val = blend_start_status[key]
-            line = f"{tab1}{key}:{tab2}{val}"
-            blend_start_lines.append(line)
-
-        blend_start_info = "\n".join(blend_start_lines)
+        start_lines = []
+        _append_status_to_lines(start_status, start_lines, tab_width1, tab_width2)
+        start_info = "\n".join(start_lines)
 
         timed_input = _TimedInput()
-        print(info.format(blend_start_info))
+        print(info.format(start_info))
         answer = timed_input.take(timeout)
 
         if answer is None:

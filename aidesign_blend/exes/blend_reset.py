@@ -11,22 +11,32 @@ import sys
 from aidesign_blend.libs import defaults
 from aidesign_blend.libs import utils
 
+# Aliases
+
 _argv = sys.argv
 _deepcopy = copy.deepcopy
 _load_json = utils.load_json
 _save_json = utils.save_json
 _stderr = sys.stderr
 
+# -
+
 brief_usage = "blend reset"
 """Brief usage."""
+
 usage = str(
     f"Usage: {brief_usage}\n"
     f"Help: gan help"
 )
 """Usage."""
 
+# Nominal info strings
+
 info = "Completed resetting the app data at: {}"
 """Primary info to display."""
+
+# -
+# Error info strings
 
 too_many_args_info = str(
     f"\"{brief_usage}\" gets too many arguments\n"
@@ -34,6 +44,8 @@ too_many_args_info = str(
     f"{usage}"
 )
 """Info to display when getting too many arguments."""
+
+# -
 
 argv_copy = None
 """Consumable copy of sys.argv."""

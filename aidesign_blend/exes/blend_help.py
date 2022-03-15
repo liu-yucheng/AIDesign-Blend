@@ -8,17 +8,24 @@
 import copy
 import sys
 
+# Aliases
+
 _argv = sys.argv
 _deepcopy = copy.deepcopy
 _stderr = sys.stderr
 
+# -
+
 brief_usage = "blend help"
 """Brief usage."""
+
 usage = str(
     f"Usage: {brief_usage}\n"
     f"Help: blend help"
 )
 """Usage."""
+
+# Nominal info strings
 
 info = fr"""
 
@@ -48,9 +55,11 @@ reset:
     How-to: blend reset
     Notes:  You will lose the current app data after the reset.
 
-"""
+""".strip()
 """Primary info to display."""
-info = info.strip()
+
+# End of nominal info strings
+# Error info strings
 
 too_many_args_info = str(
     f"\"{brief_usage}\" gets too many arguments\n"
@@ -58,6 +67,8 @@ too_many_args_info = str(
     f"{usage}"
 )
 """Info to display when getting too many arguments."""
+
+# -
 
 argv_copy = None
 """Consumable copy of sys.argv."""

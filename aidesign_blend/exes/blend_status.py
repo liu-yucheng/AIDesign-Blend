@@ -1,4 +1,4 @@
-"""The "blend status" command executable."""
+""""blend status" command executable."""
 
 # Copyright 2022 Yucheng Liu. GNU GPL3 license.
 # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
@@ -14,19 +14,26 @@ from os import path as ospath
 from aidesign_blend.libs import defaults
 from aidesign_blend.libs import utils
 
+# Aliases
+
 _argv = sys.argv
 _copytree = shutil.copytree
 _deepcopy = copy.deepcopy
 _exists = ospath.exists
 _stderr = sys.stderr
 
+# -
+
 brief_usage = "blend status"
 """Brief usage."""
+
 usage = str(
     f"Usage: {brief_usage}\n"
     f"Help: blend help"
 )
 """Usage."""
+
+# Nominal info strings
 
 info = str(
     f"App data is at: {{}}\n"
@@ -35,6 +42,9 @@ info = str(
 )
 """Primary info to display."""
 
+# -
+# Error info strings
+
 too_many_args_info = str(
     f"\"{brief_usage}\" gets too many arguments\n"
     f"Expects 0 arguments; Gets {{}} arguments\n"
@@ -42,8 +52,33 @@ too_many_args_info = str(
 )
 """Info to display when getting too many arguments."""
 
+# -
+
 argv_copy = None
 """Consumable copy of sys.argv."""
+
+
+def _append_status_to_lines(status, lines, tab_width1, tab_width2):
+    status: dict = status
+    lines: list = lines
+    tab_width1 = int(tab_width1)
+    tab_width2 = int(tab_width2)
+
+    tab1 = " " * tab_width1
+
+    for key in status:
+        key = str(key)
+        key_len = len(key)
+
+        val = status[key]
+        val = str(val)
+
+        tab_actual_width2 = tab_width2 - key_len % tab_width2
+        tab2 = " " * tab_actual_width2
+
+        line = f"{tab1}{key}:{tab2}{val}"
+        lines.append(line)
+    # end for
 
 
 def run():
@@ -58,21 +93,14 @@ def run():
             _copytree(defaults.default_app_data_path, defaults.app_data_path)
 
         app_data_info = defaults.app_data_path
-        blend_start_status = utils.load_json(defaults.blend_start_status_loc)
+        start_status = utils.load_json(defaults.blend_start_status_loc)
 
         tab_width1 = 4
         tab_width2 = 8
-        tab1 = " " * tab_width1
-        blend_start_lines = []
-        blend_start_info = ""
-        for key in blend_start_status:
-            tab2 = " " * (tab_width2 - len(key) % tab_width2)
-            val = blend_start_status[key]
-            line = f"{tab1}{key}:{tab2}{val}"
-            blend_start_lines.append(line)
-
-        blend_start_info = "\n".join(blend_start_lines)
-        print(info.format(app_data_info, blend_start_info))
+        start_lines = []
+        _append_status_to_lines(start_status, start_lines, tab_width1, tab_width2)
+        start_info = "\n".join(start_lines)
+        print(info.format(app_data_info, start_info))
         exit(0)
     else:  # elif argv_copy_length > 0:
         print(too_many_args_info.format(argv_copy_length), file=_stderr)

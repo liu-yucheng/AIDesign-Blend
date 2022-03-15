@@ -14,6 +14,8 @@ from os import path as ospath
 from aidesign_blend.libs import defaults
 from aidesign_blend.libs import utils
 
+# Aliases
+
 _argv = sys.argv
 _deepcopy = copy.deepcopy
 _exists = ospath.exists
@@ -25,13 +27,18 @@ _Path = pathlib.Path
 _save_json = utils.save_json
 _stderr = sys.stderr
 
+# -
+
 brief_usage = "blend project <path-to-project>"
 """Brief usage."""
+
 usage = str(
     f"Usage: {brief_usage}\n"
     f"Help: blend help"
 )
 """Usage."""
+
+# Nominal info strings
 
 info = str(
     f"Selected the project at: {{}}\n"
@@ -39,30 +46,38 @@ info = str(
 )
 """Primary info to display."""
 
+# -
+# Error info strings
+
 too_few_args_info = str(
     f"\"{brief_usage}\" gets too few arguments\n"
     f"Expects 1 arguments; Gets {{}} arguments\n"
     f"{usage}"
 )
 """Info to display when getting too few arguments."""
+
 too_many_args_info = str(
     f"\"{brief_usage}\" gets too many arguments\n"
     f"Expects 1 arguments; Gets {{}} arguments\n"
     f"{usage}"
 )
 """Info to display when getting too many arguments."""
+
 proj_does_not_exist_info = str(
     f"\"{brief_usage}\" cannot find the project\n"
     f"Please check if the project is present at: {{}}\n"
     f"{usage}"
 )
 """Info to display when the selected project does not exist."""
+
 proj_is_not_dir_info = str(
     f"\"{brief_usage}\" finds that the project is not a directory\n"
     f"Please check if the project appears as a directory at: {{}}\n"
     f"{usage}"
 )
 """Info to display when the selected project is not a directory."""
+
+# End of error info strings
 
 argv_copy = None
 """Consumable copy of sys.argv."""
@@ -77,8 +92,8 @@ def run():
         print(too_few_args_info.format(argv_copy_length), file=_stderr)
         exit(1)
     elif argv_copy_length == 1:
-        path_to_proj = argv_copy.pop(0)
-        path_to_proj = str(path_to_proj)
+        assert argv_copy is not None
+        path_to_proj = str(argv_copy.pop(0))
 
         if not _isabs(path_to_proj):
             path_to_proj = _join(".", path_to_proj)

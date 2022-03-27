@@ -20,6 +20,7 @@ _argv = sys.argv
 _copytree = shutil.copytree
 _deepcopy = copy.deepcopy
 _exists = ospath.exists
+_exit = sys.exit
 _isabs = ospath.isabs
 _isdir = ospath.isdir
 _join = ospath.join
@@ -86,7 +87,7 @@ def run():
 
     if argv_copy_length < 1:
         print(too_few_args_info.format(argv_copy_length), file=_stderr)
-        exit(1)
+        _exit(1)
     elif argv_copy_length == 1:
         assert argv_copy is not None
         path_to_proj = str(argv_copy.pop(0))
@@ -101,23 +102,23 @@ def run():
             path_to_proj = _Path(path_to_proj).resolve()
             path_to_proj = str(path_to_proj)
             print(proj_exists_info.format(path_to_proj), file=_stderr)
-            exit(1)
+            _exit(1)
 
         if proj_exists and (not proj_is_dir):
             path_to_proj = _Path(path_to_proj).resolve()
             path_to_proj = str(path_to_proj)
             print(proj_is_not_dir_info.format(path_to_proj), file=_stderr)
-            exit(1)
+            _exit(1)
 
         _copytree(defaults.default_blend_project_path, path_to_proj)
         path_to_proj = _Path(path_to_proj).resolve()
         path_to_proj = str(path_to_proj)
 
         print(info.format(path_to_proj))
-        exit(0)
+        _exit(0)
     else:  # elif argv_copy_length > 1:
         print(too_many_args_info.format(argv_copy_length), file=_stderr)
-        exit(1)
+        _exit(1)
     # end if
 
 

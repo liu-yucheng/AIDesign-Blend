@@ -20,6 +20,7 @@ _argv = sys.argv
 _copytree = shutil.copytree
 _deepcopy = copy.deepcopy
 _exists = ospath.exists
+_exit = sys.exit
 _stderr = sys.stderr
 
 # -
@@ -101,10 +102,10 @@ def run():
         _append_status_to_lines(start_status, start_lines, tab_width1, tab_width2)
         start_info = "\n".join(start_lines)
         print(info.format(app_data_info, start_info))
-        exit(0)
+        _exit(0)
     else:  # elif argv_copy_length > 0:
         print(too_many_args_info.format(argv_copy_length), file=_stderr)
-        exit(1)
+        _exit(1)
     # end if
 
 

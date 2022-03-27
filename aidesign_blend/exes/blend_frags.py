@@ -19,6 +19,7 @@ from aidesign_blend.libs import utils
 _argv = sys.argv
 _deepcopy = copy.deepcopy
 _exists = ospath.exists
+_exit = sys.exit
 _isabs = ospath.isabs
 _isdir = ospath.isdir
 _join = ospath.join
@@ -90,7 +91,7 @@ def run():
 
     if argv_copy_length < 1:
         print(too_few_args_info.format(argv_copy_length), file=_stderr)
-        exit(1)
+        _exit(1)
     elif argv_copy_length == 1:
         assert argv_copy is not None
         path_to_frags = str(argv_copy.pop(0))
@@ -102,21 +103,21 @@ def run():
 
         if not _exists(path_to_frags):
             print(frags_do_not_exist_info.format(path_to_frags), file=_stderr)
-            exit(1)
+            _exit(1)
 
         if not _isdir(path_to_frags):
             print(frags_are_not_dir_info.format(path_to_frags), file=_stderr)
-            exit(1)
+            _exit(1)
 
         blend_start_status = _load_json(defaults.blend_start_status_loc)
         blend_start_status["frags_path"] = path_to_frags
         _save_json(blend_start_status, defaults.blend_start_status_loc)
 
         print(info.format(path_to_frags))
-        exit(0)
+        _exit(0)
     else:  # elif argv_copy_length > 1:
         print(too_many_args_info.format(argv_copy_length), file=_stderr)
-        exit(1)
+        _exit(1)
     # end if
 
 

@@ -15,6 +15,7 @@ from aidesign_blend.libs import utils
 
 _argv = sys.argv
 _deepcopy = copy.deepcopy
+_exit = sys.exit
 _load_json = utils.load_json
 _save_json = utils.save_json
 _stderr = sys.stderr
@@ -66,10 +67,10 @@ def run():
         _save_json(blend_start_status, defaults.blend_start_status_loc)
 
         print(info.format(defaults.app_data_path))
-        exit(0)
+        _exit(0)
     else:  # elif argv_copy_length > 0:
         print(too_many_args_info.format(argv_copy_length), file=_stderr)
-        exit(1)
+        _exit(1)
     # end if
 
 

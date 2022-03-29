@@ -55,6 +55,7 @@ class Blender:
 
     class Context(_DotDict):
         """Context."""
+
         rand_mode = None
         """Random mode."""
         rand_seed = None
@@ -69,6 +70,7 @@ class Blender:
         """Save fragments grid."""
         save_flocs = None
         """Save fragment locations."""
+
         frag_width = None
         """Fragment width."""
         frag_height = None
@@ -77,6 +79,7 @@ class Blender:
         """X fragment count."""
         y_frag_count = None
         """Y fragment count."""
+
         frags_path = None
         """Fragments path."""
         frags_name = None
@@ -85,6 +88,7 @@ class Blender:
         """Fragment count."""
         frag_locs = None
         """Fragment locations."""
+
         idx_mtx = None
         """Index matrix. Subscripts [y][x]."""
         flip_mtx = None
@@ -101,12 +105,14 @@ class Blender:
         """Lower left blend matrix.Numpy array. Subscript [x, y]."""
         lr_bmtx = None
         """Lower right blend matrix. Numpy array. Subscript [x, y]."""
+
         canvas_width = None
         """Canvas width."""
         canvas_height = None
         """Canvas height."""
         canvas = None
         """Canvas. Numpy array. Subscript [x, y]."""
+
         fgrid_padding = None
         """Fragments grid padding."""
         fgrid_padding_bright = None
@@ -117,12 +123,15 @@ class Blender:
         """Fragments grid height."""
         fgrid = None
         """Fragments grid. Numpy array. Subscript [x, y]."""
-        flocs_text = None
-        """Fragment locations text."""
+
         cust_grad_enabled = None
         """Custom gradient function enabled."""
         grad_func = None
         """Gradient function. Used to calculate the gradient progress. Input and output range [0, 1]."""
+
+        flocs_text = None
+        """Fragment locations text."""
+    # end class
 
     def __init__(self, frags_path, proj_path, logs, debug_level=0):
         """Inits self with the given args."""
@@ -161,7 +170,7 @@ class Blender:
 
     def _read_config(self):
         config_loc = _join(self.proj_path, defaults.blenders_config_name)
-        self.logln("Blenders config location: {}".format(config_loc), 1)
+        self.logln(f"Blenders config location: {config_loc}", 1)
         self.config = _load_json(config_loc)
         self.logln("Completed reading blenders config", 1)
 
@@ -202,8 +211,10 @@ class Blender:
     def _parse_config(self):
         c = self.context
 
+        # Parse manual_seed
+
         manual_seed = self.config["manual_seed"]
-        self.logln("manual_seed: {}".format(manual_seed), 101)
+        self.logln(f"manual_seed: {manual_seed}", 101)
 
         if manual_seed is not None:
             manual_seed = int(manual_seed)
@@ -216,39 +227,51 @@ class Blender:
         else:  # elif manual_seed is not None:
             rand_mode = "Manual"
             rand_seed = manual_seed
+        # end if
 
         _seed(rand_seed)
         _npseed(rand_seed)
-
         c.rand_mode = rand_mode
         c.rand_seed = rand_seed
-        self.logln("Random:  Mode: {}  Seed: {}".format(rand_mode, rand_seed), 1)
+        self.logln(f"Random:  Mode: {rand_mode}  Seed: {rand_seed}", 1)
+
+        # End parse manual seed
+        # Parse random_frags
 
         rand_frags = self.config["random_frags"]
-        self.logln("random_frags: {}".format(rand_frags), 101)
+        self.logln(f"random_frags: {rand_frags}", 101)
         rand_frags = bool(rand_frags)
         c.rand_frags = rand_frags
-        self.logln("Random fragments: {}".format(rand_frags), 1)
+        self.logln(f"Random fragments: {rand_frags}", 1)
+
+        # End parse random_frags
+        # Parse avoid_random_duplicates
 
         avoid_rand_dups_key = "avoid_random_duplicates"
         avoid_rand_dups = False
 
         if avoid_rand_dups_key in self.config:
             avoid_rand_dups = self.config[avoid_rand_dups_key]
-            self.logln("avoid_rand_dups: {}".format(avoid_rand_dups), 101)
+            self.logln(f"avoid_rand_dups: {avoid_rand_dups}", 101)
 
         avoid_rand_dups = bool(avoid_rand_dups)
         c.avoid_rand_dups = avoid_rand_dups
-        self.logln("Avoid random fragment duplicates: {}".format(avoid_rand_dups), 1)
+        self.logln(f"Avoid random fragment duplicates: {avoid_rand_dups}", 1)
+
+        # End parse avoid_random_duplicates
+        # Parse random_flipping
 
         rand_flip = self.config["random_flipping"]
-        self.logln("random_flipping: {}".format(rand_flip), 101)
+        self.logln(f"random_flipping: {rand_flip}", 101)
         rand_flip = bool(rand_flip)
         c.rand_flip = rand_flip
-        self.logln("Random flipping: {}".format(rand_flip), 1)
+        self.logln(f"Random flipping: {rand_flip}", 1)
+
+        # End parse random_flipping
+        # Parse frag_resolution
 
         frag_res = self.config["frag_resolution"]
-        self.logln("frag_res: {}".format(frag_res), 101)
+        self.logln(f"frag_res: {frag_res}", 101)
         frag_res = int(frag_res)
 
         if frag_res < 0:
@@ -262,10 +285,13 @@ class Blender:
 
         c.frag_width = frag_res
         c.frag_height = frag_res
-        self.logln("Fragment:  Width: {}  Height: {}".format(frag_res, frag_res), 1)
+        self.logln(f"Fragment:  Width: {frag_res}  Height: {frag_res}", 1)
+
+        # End parse frag_resolution
+        # Parse x_frag_count
 
         x_frag_count = self.config["x_frag_count"]
-        self.logln("x_frag_count: {}".format(x_frag_count), 101)
+        self.logln(f"x_frag_count: {x_frag_count}", 101)
         x_frag_count = int(x_frag_count)
 
         if x_frag_count < 0:
@@ -276,8 +302,11 @@ class Blender:
 
         c.x_frag_count = x_frag_count
 
+        # End parse x_frag_count
+        # Parse y_frag_count
+
         y_frag_count = self.config["y_frag_count"]
-        self.logln("y_frag_count: {}".format(y_frag_count), 101)
+        self.logln(f"y_frag_count: {y_frag_count}", 101)
         y_frag_count = int(y_frag_count)
 
         if y_frag_count < 0:
@@ -287,22 +316,25 @@ class Blender:
             y_frag_count = 2
 
         c.y_frag_count = y_frag_count
-
         total_frag_count = x_frag_count * y_frag_count
+        self.logln(f"Fragment count:  X: {x_frag_count}  Y: {y_frag_count}  Total: {total_frag_count}", 1)
 
-        self.logln("Fragment count:  X: {}  Y: {}  Total: {}".format(x_frag_count, y_frag_count, total_frag_count), 1)
+        # End parse y_frag_count
+        # Parse save_frag_locations
 
         save_flocs_key = "save_frag_locations"
 
         if save_flocs_key in self.config:
-            save_flocs = self.config[save_flocs_key]
+            save_flocs = bool(self.config[save_flocs_key])
         else:
             save_flocs = False
 
         self.logln(f"save_flocs: {save_flocs}", 101)
-
         c.save_flocs = save_flocs
         self.logln(f"Save fragment locations: {save_flocs}", 1)
+
+        # End parse save_frag_locations
+        # Parse frags_grid
 
         fgrid_key = "frags_grid"
         save_key = "save"
@@ -315,7 +347,7 @@ class Blender:
             save_fgrid = fgrid_config[save_key]
             save_fgrid = bool(save_fgrid)
 
-        self.logln("save_fgrid: {}".format(save_fgrid), 101)
+        self.logln(f"save_fgrid: {save_fgrid}", 101)
 
         if save_fgrid:
             fgrid_padding = fgrid_config["padding"]
@@ -339,29 +371,24 @@ class Blender:
         # end if
 
         if save_fgrid:
-            self.logstr(
-                str(
-                    "fgrid_padding: {}\n"
-                    "fgrid_padding_bright: {}\n"
-                ).format(
-                    fgrid_padding,
-                    fgrid_padding_bright
-                ),
-                101
+            info = str(
+                f"fgrid_padding: {fgrid_padding}\n"
+                f"fgrid_padding_bright: {fgrid_padding_bright}\n"
             )
+
+            self.logstr(info, 101)
         # end if
 
         c.save_fgrid = save_fgrid
         c.fgrid_padding = fgrid_padding
         c.fgrid_padding_bright = fgrid_padding_bright
-
-        self.logln("Save fragments grid: {}".format(save_fgrid), 1)
+        self.logln(f"Save fragments grid: {save_fgrid}", 1)
 
         if save_fgrid:
-            self.logln(
-                "Fragments grid:  Padding: {}  Padding brightness: {}".format(fgrid_padding, fgrid_padding_bright), 1
-            )
-        # end if
+            self.logln(f"Fragments grid:  Padding: {fgrid_padding}  Padding brightness: {fgrid_padding_bright}", 1)
+
+        # End parse frags_grid
+        # Parse custom_gradient
 
         cust_grad_enabled = False
         cust_grad_key = "custom_gradient"
@@ -372,11 +399,9 @@ class Blender:
 
         if cust_grad_enabled:
             cgrad_config = self.config[cust_grad_key]
-
             coefs = cgrad_config["coefficients"]
             exps = cgrad_config["exponents"]
             coefs, exps = self._pad_coefs_exps(coefs, exps)
-
             grad_func = _Poly1V(coefs, exps)
         else:  # elif not cust_grad_enabled:
             grad_func = _LU()
@@ -389,16 +414,19 @@ class Blender:
             grad_name = "custom"
         else:  # elif not cust_grad_enabled:
             grad_name = "default"
+        # end if
 
-        self.logln("Prepared gradient function: {}".format(grad_name), 1)
-        self.logln("Gradient function: \" {} \"".format(grad_func.fnstr()), 1)
+        self.logln(f"Prepared gradient function: {grad_name}", 1)
+        self.logln(f"Gradient function: \" {grad_func.fnstr()} \"", 1)
+
+        # End parse custom_gradient
 
         self.logln("Completed parsing blenders config", 1)
 
     def _read_frags_path(self, frags_path):
         frag_names = _listdir(frags_path)
         frag_names.sort()
-        self.logln("frag_names: {}".format(frag_names), 102)
+        self.logln(f"frag_names: {frag_names}", 102)
         frag_locs = []
 
         for name in frag_names:
@@ -414,11 +442,11 @@ class Blender:
 
             if is_img:
                 frag_locs.append(loc)
-
         # end for
-        self.logln("frag_locs: {}".format(frag_locs), 102)
+
+        self.logln(f"frag_locs: {frag_locs}", 102)
         frag_count = len(frag_locs)
-        self.logln("frag_count: {}".format(frag_count), 101)
+        self.logln(f"frag_count: {frag_count}", 101)
 
         return frag_locs
 
@@ -431,18 +459,18 @@ class Blender:
 
         if frag_count <= 0:
             frags_path = defaults.default_frags_path
-            self.logln("Found no fragments in frags_path, defaulting frags_path to: {}".format(frags_path), 1)
+            self.logln(f"Found no fragments in frags_path, defaulting frags_path to: {frags_path}", 1)
             frag_locs = self._read_frags_path(frags_path)
             frag_count = len(frag_locs)
+        # end if
 
         frags_name = _Path(frags_path).name
-
         c.frags_path = frags_path
-        self.logln("Fragments path: {}".format(frags_path), 1)
+        self.logln(f"Fragments path: {frags_path}", 1)
         c.frags_name = frags_name
-        self.logln("Fragments name: {}".format(frags_name), 1)
+        self.logln(f"Fragments name: {frags_name}", 1)
         c.frag_count = frag_count
-        self.logln("Fragment count: {}".format(frag_count), 1)
+        self.logln(f"Fragment count: {frag_count}", 1)
         c.frag_locs = frag_locs
         self.logln("Prepared fragment locations")
 
@@ -487,17 +515,19 @@ class Blender:
     def _prep_matrices(self):
         c = self.context
 
+        # Make index matrix
+
         idx_mtx = self._make_2d_matrix(c.y_frag_count, c.x_frag_count)
 
         if c.avoid_rand_dups:
             remain_idxs = self._gen_rand_frag_idxs()
         else:  # elif not c.avoid_rand_dups:
             remain_idxs = None
+        # end if
 
         if c.rand_frags:
             for iy in range(c.y_frag_count):
                 for ix in range(c.x_frag_count):
-
                     if c.avoid_rand_dups:
                         remain_idxs_len = len(remain_idxs)
 
@@ -508,11 +538,11 @@ class Blender:
                     else:  # elif not c.avoid_rand_dups:
                         idx_mtx[iy][ix] = _randint(0, c.frag_count - 1)
                     # end if
-
                 # end for
             # end for
         else:  # elif not c.rand_frags:
             idx = 0
+
             for iy in range(c.y_frag_count):
                 for ix in range(c.x_frag_count):
                     idx_mtx[iy][ix] = idx
@@ -521,7 +551,10 @@ class Blender:
             # end for
         # end if
 
-        self.logln("idx_mtx: {}".format(idx_mtx), 103)
+        self.logln(f"idx_mtx: {idx_mtx}", 103)
+
+        # End make index matrix
+        # Make flip matrix
 
         flip_mtx = self._make_2d_matrix(c.y_frag_count, c.x_frag_count)
 
@@ -531,10 +564,13 @@ class Blender:
                     flip_x = _rand_bool()
                     flip_y = _rand_bool()
                     flip = ""
+
                     if flip_x:
                         flip += "x"
+
                     if flip_y:
                         flip += "y"
+
                     flip_mtx[iy][ix] = flip
                 # end for
             # end for
@@ -546,7 +582,10 @@ class Blender:
             # end for
         # end if
 
-        self.logln("flip_mtx: {}".format(flip_mtx), 103)
+        self.logln(f"flip_mtx: {flip_mtx}", 103)
+
+        # End make flip matrix
+        # Make blend matrices
 
         width = c.frag_width // 2
         height = c.frag_height // 2
@@ -566,7 +605,8 @@ class Blender:
                 # ll_fac = y_prog * (1 - x_prog)
                 # lr_fac = y_prog * x_prog
 
-                # Use normalized 2-d distances as blend factors
+                # Use normalized 2-d distances to find blend factors
+
                 last_ix = width - 1
                 last_iy = height - 1
                 x_remain = self._grad_prog(last_ix - ix, width)
@@ -595,6 +635,8 @@ class Blender:
                 ll_fac = ll_remain / remain_sum
                 lr_fac = lr_remain / remain_sum
 
+                # End use normalized 2-d distances to find blend factors
+
                 ul_bmtx[ix, iy] = ul_fac
                 ur_bmtx[ix, iy] = ur_fac
                 ll_bmtx[ix, iy] = ll_fac
@@ -602,25 +644,21 @@ class Blender:
             # end for
         # end for
 
-        self.logstr(
-            str(
-                "bmtx:\n"
-                "  ul:\n"
-                "{}\n"
-                "  ur:\n"
-                "{}\n"
-                "  ll:\n"
-                "{}\n"
-                "  lr:\n"
-                "{}\n"
-            ).format(
-                ul_bmtx,
-                ur_bmtx,
-                ll_bmtx,
-                lr_bmtx
-            ),
-            103
+        info = str(
+            f"bmtx:\n"
+            f"  ul:\n"
+            f"{ul_bmtx}\n"
+            f"  ur:\n"
+            f"{ur_bmtx}\n"
+            f"  ll:\n"
+            f"{ll_bmtx}\n"
+            f"  lr:\n"
+            f"{lr_bmtx}\n"
         )
+
+        self.logstr(info, 103)
+
+        # End make blend matrices
 
         c.idx_mtx = idx_mtx
         self.logln("Prepared the index matrix", 1)
@@ -633,7 +671,7 @@ class Blender:
         c.ll_bmtx = ll_bmtx
         c.lr_bmtx = lr_bmtx
         self.logln("Prepared 4 blend matrices:  Upper-left  Upper-right  Lower-left  Lower-right", 1)
-        self.logln("Blend matrices:  Width: {}  Height: {}".format(width, height), 1)
+        self.logln(f"Blend matrices:  Width: {width}  Height: {height}", 1)
 
     def _make_numpy_3d_matrix(self, x_size, y_size, z_size):
         matrix = _np_ndarray((x_size, y_size, z_size), dtype=_npsingle)
@@ -650,7 +688,7 @@ class Blender:
         c.canvas_height = height
         c.canvas = canvas
 
-        self.logln("Prepared the canvas:  Width: {}  Height: {}".format(width, height), 1)
+        self.logln(f"Prepared the canvas:  Width: {width}  Height: {height}", 1)
 
     def _prep_fgrid(self):
         c = self.context
@@ -659,27 +697,24 @@ class Blender:
             width = c.fgrid_padding + c.x_frag_count * (c.frag_width + c.fgrid_padding)
             height = c.fgrid_padding + c.y_frag_count * (c.frag_height + c.fgrid_padding)
             fgrid = self._make_numpy_3d_matrix(width, height, 3)
-            self.logstr(
-                str(
-                    "width: {}\n"
-                    "height: {}\n"
-                ).format(
-                    width,
-                    height
-                ),
-                101
+
+            info = str(
+                f"width: {width}\n"
+                f"height: {height}\n"
             )
-            self.logstr(
-                str(
-                    "fgrid:\n"
-                    "{}\n"
-                ).format(fgrid),
-                104
+
+            self.logstr(info, 101)
+
+            info = str(
+                f"fgrid:\n"
+                f"{fgrid}\n"
             )
+
+            self.logstr(info, 104)
             c.fgrid_width = width
             c.fgrid_height = height
             c.fgrid = fgrid
-            self.logln("Prepared the fragments grid:  Width: {}  Height: {}".format(width, height), 1)
+            self.logln(f"Prepared the fragments grid:  Width: {width}  Height: {height}", 1)
         # end if
 
     def _tweak_pil_safety(self):
@@ -687,7 +722,7 @@ class Blender:
         max_height = 65535
         max_pixs = max_width * max_height
         pil_image.MAX_IMAGE_PIXELS = max_pixs
-        self.logln("Tweaked PIL safety max pixels:  Width: {}  Height: {}".format(max_width, max_height), 1)
+        self.logln(f"Tweaked PIL safety max pixels:  Width: {max_width}  Height: {max_height}  Total: {max_pixs}", 1)
 
     def _blend_block(self, block_y, block_x):
         c = self.context
@@ -776,49 +811,40 @@ class Blender:
         ur_np = _nptranspose(ur_np, axis_ord)
         ll_np = _nptranspose(ll_np, axis_ord)
         lr_np = _nptranspose(lr_np, axis_ord)
-        self.logln("Transposed the UL, UR, LL, LR images with axis order: {}".format(axis_ord), 103)
+        self.logln(f"Transposed the UL, UR, LL, LR images with axis order: {axis_ord}", 103)
 
-        self.logstr(
-            str(
-                "ul_np:\n"
-                "{}\n"
-                "ur_np:\n"
-                "{}\n"
-                "ll_np:\n"
-                "{}\n"
-                "lr_np:\n"
-                "{}\n"
-            ).format(
-                ul_np,
-                ur_np,
-                ll_np,
-                lr_np
-            ),
-            105
+        info = str(
+            f"ul_np:\n"
+            f"{ul_np}\n"
+            f"ur_np:\n"
+            f"{ur_np}\n"
+            f"ll_np:\n"
+            f"{ll_np}\n"
+            f"lr_np:\n"
+            f"{lr_np}\n"
         )
-        self.logstr(
-            str(
-                "ul_np shape: {}\n"
-                "ur_np shape: {}\n"
-                "ll_np shape: {}\n"
-                "lr_np shape: {}\n"
-            ).format(
-                ul_np.shape,
-                ur_np.shape,
-                ll_np.shape,
-                lr_np.shape
-            ),
-            103
+
+        self.logstr(info, 105)
+
+        info = str(
+            f"ul_np shape: {ul_np.shape}\n"
+            f"ur_np shape: {ur_np.shape}\n"
+            f"ll_np shape: {ll_np.shape}\n"
+            f"lr_np shape: {lr_np.shape}\n"
         )
+
+        self.logstr(info, 103)
 
         block_r = _npmultiply(c.ul_bmtx, ul_np[:, :, 0]) + \
             _npmultiply(c.ur_bmtx, ur_np[:, :, 0]) + \
             _npmultiply(c.ll_bmtx, ll_np[:, :, 0]) + \
             _npmultiply(c.lr_bmtx, lr_np[:, :, 0])
+
         block_g = _npmultiply(c.ul_bmtx, ul_np[:, :, 1]) + \
             _npmultiply(c.ur_bmtx, ur_np[:, :, 1]) + \
             _npmultiply(c.ll_bmtx, ll_np[:, :, 1]) + \
             _npmultiply(c.lr_bmtx, lr_np[:, :, 1])
+
         block_b = _npmultiply(c.ul_bmtx, ul_np[:, :, 2]) + \
             _npmultiply(c.ur_bmtx, ur_np[:, :, 2]) + \
             _npmultiply(c.ll_bmtx, ll_np[:, :, 2]) + \
@@ -828,22 +854,16 @@ class Blender:
         _npclip(block_g, 0, 255, block_g)
         _npclip(block_b, 0, 255, block_b)
 
-        self.logstr(
-            str(
-                "block_r: \n"
-                "{}\n"
-                "block_g: \n"
-                "{}\n"
-                "block_b: \n"
-                "{}\n"
-            ).format(
-                block_r,
-                block_g,
-                block_b
-            ),
-            104
+        info = str(
+            f"block_r: \n"
+            f"{block_r}\n"
+            f"block_g: \n"
+            f"{block_g}\n"
+            f"block_b: \n"
+            f"{block_b}\n"
         )
 
+        self.logstr(info, 104)
         c.canvas[canvas_x1: canvas_x2, canvas_y1: canvas_y2, 0] = block_r
         c.canvas[canvas_x1: canvas_x2, canvas_y1: canvas_y2, 1] = block_g
         c.canvas[canvas_x1: canvas_x2, canvas_y1: canvas_y2, 2] = block_b
@@ -869,13 +889,13 @@ class Blender:
                 needs_log = needs_log or curr_block + 1 == total_block_count
 
                 if needs_log:
-                    self.logln("Blended block {} / {}".format(curr_block + 1, total_block_count), 1)
+                    self.logln(f"Blended block {curr_block + 1} / {total_block_count}", 1)
 
                 curr_block += 1
             # end for
         # end for
 
-        self.logln("Canvas: {}".format(c.canvas), 104)
+        self.logln(f"Canvas: {c.canvas}", 104)
 
         info = str(
             "-\n"
@@ -889,27 +909,27 @@ class Blender:
 
         axis_ord = [1, 0, 2]
         c.canvas = _nptranspose(c.canvas, axis_ord)
-        self.logln("Transposed the canvas with axis order {}".format(axis_ord), 101)
-
+        self.logln(f"Transposed the canvas with axis order {axis_ord}", 101)
         canvas: _np_ndarray = c.canvas
         canvas = canvas.astype(_npubyte)
         img = _pil_image_fromarray(canvas, "RGB")
         now = _now()
+
         timestamp = str(
             f"{now.year:04}{now.month:02}{now.day:02}-{now.hour:02}{now.minute:02}{now.second:02}-"
             f"{now.microsecond:06}"
         )
-        img_name = "Blended-From-{}-Time-{}.jpg".format(c.frags_name, timestamp)
+
+        img_name = f"Blended-From-{c.frags_name}-Time-{timestamp}.jpg"
         img_loc = _join(self.proj_path, img_name)
         img.save(img_loc, quality=95)
-        self.logln("Saved blended blocks at: {}".format(img_loc), 1)
+        self.logln(f"Saved blended blocks at: {img_loc}", 1)
 
     def _render_fgrid_block(self, block_y, block_x):
         c = self.context
 
         idx = c.idx_mtx[block_y][block_x]
         loc = c.frag_locs[idx]
-
         img = _pil_image_open(loc)
 
         size = c.frag_width, c.frag_height
@@ -929,17 +949,15 @@ class Blender:
         img_np = _nparray(img, dtype=_npsingle)
         axis_ord = [1, 0, 2]
         img_np = _nptranspose(img_np, axis_ord)
-        self.logln("Transposed the image with axis order: {}".format(axis_ord), 103)
+        self.logln(f"Transposed the image with axis order: {axis_ord}", 103)
 
-        self.logstr(
-            str(
-                "img_np:\n"
-                "{}\n"
-            ).format(img_np),
-            105
+        info = str(
+            f"img_np:\n"
+            f"{img_np}\n"
         )
 
-        self.logln("img_np shape: {}".format(img_np.shape), 103)
+        self.logstr(info, 105)
+        self.logln(f"img_np shape: {img_np.shape}", 103)
 
         fgrid_x1 = c.fgrid_padding + block_x * (c.frag_width + c.fgrid_padding)
         fgrid_y1 = c.fgrid_padding + block_y * (c.frag_height + c.fgrid_padding)
@@ -960,7 +978,6 @@ class Blender:
             self.logln(info)
             fgrid: _np_ndarray = c.fgrid
             fgrid.fill(c.fgrid_padding_bright)
-
             total_block_count = c.y_frag_count * c.x_frag_count
             curr_block = 0
 
@@ -973,16 +990,13 @@ class Blender:
                     needs_log = needs_log or curr_block + 1 == total_block_count
 
                     if needs_log:
-                        self.logln(
-                            "Rendered fragments grid block: {} / {}".format(curr_block + 1, total_block_count), 1
-                        )
-                    # end if
+                        self.logln(f"Rendered fragments grid block: {curr_block + 1} / {total_block_count}", 1)
 
                     curr_block += 1
                 # end for
             # end for
 
-            self.logln("Fragments grid: {}".format(fgrid), 104)
+            self.logln(f"Fragments grid: {fgrid}", 104)
 
             info = str(
                 "-\n"
@@ -998,20 +1012,21 @@ class Blender:
         if c.save_fgrid:
             axis_ord = [1, 0, 2]
             c.fgrid = _nptranspose(c.fgrid, axis_ord)
-            self.logln("Transposed the fragments grid with axis order {}".format(axis_ord), 101)
-
+            self.logln(f"Transposed the fragments grid with axis order {axis_ord}", 101)
             fgrid: _np_ndarray = c.fgrid
             fgrid = fgrid.astype(_npubyte)
             img = _pil_image_fromarray(fgrid, "RGB")
             now = _now()
+
             timestamp = str(
                 f"{now.year:04}{now.month:02}{now.day:02}-{now.hour:02}{now.minute:02}{now.second:02}-"
                 f"{now.microsecond:06}"
             )
-            img_name = "Frags-From-{}-Time-{}.jpg".format(c.frags_name, timestamp)
+
+            img_name = f"Frags-From-{c.frags_name}-Time-{timestamp}.jpg"
             img_loc = _join(self.proj_path, img_name)
             img.save(img_loc, quality=95)
-            self.logln("Saved fragments grid at: {}".format(img_loc), 1)
+            self.logln(f"Saved fragments grid at: {img_loc}", 1)
         # end if
 
     def _record_flocs(self):
@@ -1054,10 +1069,7 @@ class Blender:
                         curr_block + 1 == total_block_count
 
                     if needs_log:
-                        self.logln(
-                            "Recorded fragment locations block: {} / {}".format(curr_block + 1, total_block_count), 1
-                        )
-                    # end if
+                        self.logln(f"Recorded fragment locations block: {curr_block + 1} / {total_block_count}", 1)
 
                     curr_block += 1
                 # end for
@@ -1073,7 +1085,7 @@ class Blender:
                 # end for
             # end for
 
-            self.logln("Fragment locations: {}".format(c.flocs_text), 103)
+            self.logln(f"Fragment locations: {c.flocs_text}", 103)
 
             info = str(
                 "-\n"

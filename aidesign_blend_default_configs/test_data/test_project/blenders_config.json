@@ -6,6 +6,7 @@
     "frag_resolution": 64,
     "x_frag_count": 4,
     "y_frag_count": 4,
+    "save_frag_locations": true,
     "frags_grid": {
         "save": true,
         "padding": 2,

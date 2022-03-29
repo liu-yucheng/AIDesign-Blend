@@ -36,6 +36,7 @@ Configuration item descriptions are listed below.
 - `frag_resolution`. Fragment resolution in pixels. Type `int`. Range [2, ). Will be converted to the nearest bigger even number.
 - `x_frag_count`. X-axis fragment count. Type `int`. Range [2, ).
 - `y_frag_count`. Y-axis fragment count. Type `int`. Range [2, ).
+- `save_frag_locations`. Whether to save the fragment source image locations. Type `bool`.
 - `frags_grid`. Fragments grid configuration. Type `dict`.
   - `save`. Whether to save the fragments grid. Type `bool`.
   - `padding`. Type `int`. Range [0, ).

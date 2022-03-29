@@ -561,7 +561,8 @@ class TestBlendStart(_TestCmd):
 
         regexs_exist = [
             _re_compile(r"Blended-From-.*-Time-.*\.jpg"),
-            _re_compile(r"Frags-From-.*-Time-.*\.jpg")
+            _re_compile(r"Frags-From-.*-Time-.*\.jpg"),
+            _re_compile(r"Frag-Locations-From-.*-Time-.*\.txt")
         ]
 
         for regex in regexs_exist:

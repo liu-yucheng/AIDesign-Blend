@@ -44,6 +44,7 @@ _pil_image_open = pil_image.open
 _Poly1V = grads.Poly1V
 _randint = random.randint
 _rand_bool = utils.rand_bool
+_save_text = utils.save_text
 _seed = random.seed
 _shuffle = random.shuffle
 _what = imghdr.what
@@ -66,6 +67,8 @@ class Blender:
         """Random flipping."""
         save_fgrid = None
         """Save fragments grid."""
+        save_flocs = None
+        """Save fragment locations."""
         frag_width = None
         """Fragment width."""
         frag_height = None
@@ -114,6 +117,8 @@ class Blender:
         """Fragments grid height."""
         fgrid = None
         """Fragments grid. Numpy array. Subscript [x, y]."""
+        flocs_text = None
+        """Fragment locations text."""
         cust_grad_enabled = None
         """Custom gradient function enabled."""
         grad_func = None
@@ -286,6 +291,18 @@ class Blender:
         total_frag_count = x_frag_count * y_frag_count
 
         self.logln("Fragment count:  X: {}  Y: {}  Total: {}".format(x_frag_count, y_frag_count, total_frag_count), 1)
+
+        save_flocs_key = "save_frag_locations"
+
+        if save_flocs_key in self.config:
+            save_flocs = self.config[save_flocs_key]
+        else:
+            save_flocs = False
+
+        self.logln(f"save_flocs: {save_flocs}", 101)
+
+        c.save_flocs = save_flocs
+        self.logln(f"Save fragment locations: {save_flocs}", 1)
 
         fgrid_key = "frags_grid"
         save_key = "save"
@@ -941,9 +958,11 @@ class Blender:
             )
 
             self.logln(info)
+            fgrid: _np_ndarray = c.fgrid
+            fgrid.fill(c.fgrid_padding_bright)
+
             total_block_count = c.y_frag_count * c.x_frag_count
             curr_block = 0
-            c.fgrid.fill(c.fgrid_padding_bright)
 
             for iy in range(c.y_frag_count):
                 for ix in range(c.x_frag_count):
@@ -963,7 +982,7 @@ class Blender:
                 # end for
             # end for
 
-            self.logln("Fragments grid: {}".format(c.fgrid), 104)
+            self.logln("Fragments grid: {}".format(fgrid), 104)
 
             info = str(
                 "-\n"
@@ -993,6 +1012,92 @@ class Blender:
             img_loc = _join(self.proj_path, img_name)
             img.save(img_loc, quality=95)
             self.logln("Saved fragments grid at: {}".format(img_loc), 1)
+        # end if
+
+    def _record_flocs(self):
+        c = self.context
+
+        if c.save_flocs:
+            info = str(
+                "Started recording fragment locations\n"
+                "-"
+            )
+
+            self.logln(info)
+            total_block_count = c.y_frag_count * c.x_frag_count
+            flocs_blocks = []
+            curr_block = 0
+
+            for iy in range(c.y_frag_count):
+                flocs_row = []
+
+                for ix in range(c.x_frag_count):
+                    idx = c.idx_mtx[iy][ix]
+                    loc = c.frag_locs[idx]
+                    flip = c.flip_mtx[iy][ix]
+
+                    block = str(
+                        f"- Fragment\n"
+                        f"\n"
+                        f"(X, Y): ({ix}, {iy})\n"
+                        f"Image: {loc}\n"
+                        f"Flip: \"{flip}\"\n"
+                        f"\n"
+                        f"- End of fragment\n"
+                    )
+
+                    flocs_row.append(block)
+
+                    needs_log = \
+                        curr_block + 1 == 1 or \
+                        (curr_block + 1) % 720 == 0 or \
+                        curr_block + 1 == total_block_count
+
+                    if needs_log:
+                        self.logln(
+                            "Recorded fragment locations block: {} / {}".format(curr_block + 1, total_block_count), 1
+                        )
+                    # end if
+
+                    curr_block += 1
+                # end for
+
+                flocs_blocks.append(flocs_row)
+            # end for
+
+            c.flocs_text = ""
+
+            for ix in range(c.x_frag_count):
+                for iy in range(c.y_frag_count):
+                    c.flocs_text += flocs_blocks[iy][ix]
+                # end for
+            # end for
+
+            self.logln("Fragment locations: {}".format(c.flocs_text), 103)
+
+            info = str(
+                "-\n"
+                "Completed recording fragment locations"
+            )
+
+            self.logln(info)
+        # end if
+
+    def _save_flocs(self):
+        c = self.context
+
+        if c.save_flocs:
+            now = _now()
+
+            timestamp = str(
+                f"{now.year:04}{now.month:02}{now.day:02}-{now.hour:02}{now.minute:02}{now.second:02}-"
+                f"{now.microsecond:06}"
+            )
+
+            name = f"Frag-Locations-From-{c.frags_name}-Time-{timestamp}.txt"
+            loc = _join(self.proj_path, name)
+            _save_text(c.flocs_text, loc)
+            self.logln(f"Saved fragment locations at {loc}", 1)
         # end if
 
     def prep(self):
@@ -1033,6 +1138,8 @@ class Blender:
         self._save_blended_blocks()
         self._render_fgrid()
         self._save_fgrid()
+        self._record_flocs()
+        self._save_flocs()
 
         info = str(
             "-\n"

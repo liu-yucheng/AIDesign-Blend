@@ -884,9 +884,10 @@ class Blender:
             for ix in range(c.x_frag_count - 1):
                 self._blend_block(iy, ix)
 
-                needs_log = curr_block + 1 == 1
-                needs_log = needs_log or (curr_block + 1) % 180 == 0
-                needs_log = needs_log or curr_block + 1 == total_block_count
+                needs_log = \
+                    curr_block + 1 == 1 or \
+                    (curr_block + 1) % 180 == 0 or \
+                    curr_block + 1 == total_block_count
 
                 if needs_log:
                     self.logln(f"Blended block {curr_block + 1} / {total_block_count}", 1)
@@ -985,9 +986,10 @@ class Blender:
                 for ix in range(c.x_frag_count):
                     self._render_fgrid_block(iy, ix)
 
-                    needs_log = curr_block + 1 == 1
-                    needs_log = needs_log or (curr_block + 1) % 360 == 0
-                    needs_log = needs_log or curr_block + 1 == total_block_count
+                    needs_log = \
+                        curr_block + 1 == 1 or \
+                        (curr_block + 1) % 360 == 0 or \
+                        curr_block + 1 == total_block_count
 
                     if needs_log:
                         self.logln(f"Rendered fragments grid block: {curr_block + 1} / {total_block_count}", 1)
@@ -1055,8 +1057,8 @@ class Blender:
                         f"- Fragment\n"
                         f"\n"
                         f"(X, Y): ({ix}, {iy})\n"
-                        f"Image: {loc}\n"
-                        f"Flip: \"{flip}\"\n"
+                        f"Image: \"{repr(loc)[1: -1]}\"\n"
+                        f"Flip: \"{repr(flip)[1: -1]}\"\n"
                         f"\n"
                         f"- End of fragment\n"
                     )

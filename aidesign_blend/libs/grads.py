@@ -10,7 +10,7 @@ from aidesign_blend.libs import utils
 _clamp = utils.clamp_float
 
 
-class _GradFunc:
+class GradFunc:
 
     @classmethod
     def clamp(cls, inval, bound1, bound2):
@@ -51,7 +51,7 @@ class _GradFunc:
         Returns:
             result: the result
         """
-        result = _GradFunc.clamp(inval, self.inval_bound1, self.inval_bound2)
+        result = GradFunc.clamp(inval, self.inval_bound1, self.inval_bound2)
         return result
 
     def outval_clamp(self, outval):
@@ -63,7 +63,7 @@ class _GradFunc:
         Returns:
             result: the result
         """
-        result = _GradFunc.clamp(outval, self.outval_bound1, self.outval_bound2)
+        result = GradFunc.clamp(outval, self.outval_bound1, self.outval_bound2)
         return result
 
     def __call__(self, inval):
@@ -96,7 +96,7 @@ class _GradFunc:
         return result
 
 
-class LU(_GradFunc):
+class LU(GradFunc):
     """The linear unity function.
 
     f(x) = x.
@@ -114,7 +114,7 @@ class LU(_GradFunc):
         return super().fnstr()
 
 
-class Poly1V(_GradFunc):
+class Poly1V(GradFunc):
     """Polynomial function with 1 variable.
 
     Single variable polynomial function.

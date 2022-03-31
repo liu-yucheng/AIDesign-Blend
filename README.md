@@ -72,7 +72,7 @@ You can test this application by running `python <this-repo>/test_all.py`.
 
 # Python Code Style
 
-Follows [PEP8](https://peps.python.org/pep-0008/) with the exceptions shown in the following VSCode `settings.json` fragment.
+Follows [PEP8](https://peps.python.org/pep-0008/) with the exceptions shown in the following VSCode `settings.json` code fragment.
 
 ```json
 {

@@ -70,6 +70,26 @@ See `<this-repo>/requirements.txt`.
 
 You can test this application by running `python <this-repo>/test_all.py`.
 
+# Python Code Style
+
+Follows [PEP8](https://peps.python.org/pep-0008/) with the exceptions shown in the following VSCode `settings.json` fragment.
+
+```json
+{
+  ...,
+  "python.formatting.provider": "autopep8",
+  "python.formatting.autopep8Args": [
+    "--max-line-length=119"
+  ],
+  "python.linting.enabled": true,
+  "python.linting.pycodestyleEnabled": true,
+  "python.linting.pycodestyleArgs": [
+    "--max-line-length=119"
+  ],
+  ...
+}
+```
+
 # Miscellaneous
 ## Developer's Notes :memo: And Warnings :warning:
 ### Notes :memo:

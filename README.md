@@ -166,7 +166,7 @@ You should have and keep a copy of the above license. If not, please get it
 ### Long Version
 
 ```text
-<<<< application >>>>, <<<< discription >>>>.
+AIDesign-Blend, AIDesign image fragments blending application.
 Copyright (C) 2022 Yucheng Liu. GNU GPL3 license (GNU General Public License
   Version 3).
 

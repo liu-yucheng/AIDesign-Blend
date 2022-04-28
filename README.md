@@ -41,6 +41,9 @@ Usage: blend <command> ...
 help:
     When:   You need help info. For example, now.
     How-to: blend help
+info:
+    When:   You need package info.
+    How-to: blend info
 create:
     When:   You create a new blend project with the defaults.
     How-to: blend create <path-to-project>

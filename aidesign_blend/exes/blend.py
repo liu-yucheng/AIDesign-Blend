@@ -6,30 +6,16 @@
 # Last updated by username: liu-yucheng
 
 import copy
-import pkg_resources
 import sys
+
+from aidesign_blend.libs import pack_info
 
 # Aliases
 
 _argv = sys.argv
 _deepcopy = copy.deepcopy
 _exit = sys.exit
-_require = pkg_resources.require
 _stderr = sys.stderr
-
-# -
-# Initialize _version
-
-_version = "<unknown version>"
-
-try:
-    _packages = _require("aidesign-blend")
-
-    if len(_packages) > 0:
-        _version = _packages[0].version
-except Exception as _:
-    pass
-# end try
 
 # -
 
@@ -45,7 +31,7 @@ usage = str(
 # Nominal info strings
 
 info = str(
-    f"AIDesign-Blend (aidesign-blend) {_version}\n"
+    f"AIDesign-Blend (aidesign-blend) {pack_info.ver}\n"
     f"{usage}"
 )
 """Primary info to display."""
@@ -113,6 +99,10 @@ def _run_command():
         from aidesign_blend.exes import blend_start
         blend_start.argv_copy = argv_copy
         blend_start.run()
+    elif command == "info":
+        from aidesign_blend.exes import blend_info
+        blend_info.argv_copy = argv_copy
+        blend_info.run()
     else:  # elif command is AnyOther:
         print(unknown_cmd_info.format(command), file=_stderr)
         _exit(1)

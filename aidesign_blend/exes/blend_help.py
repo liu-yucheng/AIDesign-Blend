@@ -6,6 +6,7 @@
 # Last updated by username: liu-yucheng
 
 import copy
+import pydoc
 import sys
 
 # Aliases
@@ -13,6 +14,7 @@ import sys
 _argv = sys.argv
 _deepcopy = copy.deepcopy
 _exit = sys.exit
+_pager = pydoc.pager
 _stderr = sys.stderr
 
 # -
@@ -86,7 +88,7 @@ def run():
     assert argv_copy_length >= 0
 
     if argv_copy_length == 0:
-        print(info)
+        _pager(info)
         _exit(0)
     else:  # elif argv_copy_length > 0:
         print(too_many_args_info.format(argv_copy_length), file=_stderr)

@@ -31,9 +31,11 @@ def main():
     """Main function."""
     _setup(
         name="aidesign-blend",
-        version="1.5.8",
-        description="AIDesign Image Fragments Blending Application",
+        version="1.6.0",
         author="Yucheng Liu (From The AIDesign Team)",
+        license="Copyright (C) 2022 Yucheng Liu. GNU GPL3 license.",
+        description="AIDesign image fragments blending application.",
+        # ----
         packages=_find_packages(),
         entry_points={
             "console_scripts": [

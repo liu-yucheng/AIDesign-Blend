@@ -1,4 +1,4 @@
-""""blend help" command executable."""
+""""blend info" command executable."""
 
 # Copyright 2022 Yucheng Liu. GNU GPL3 license.
 # GNU GPL3 license copy: https://www.gnu.org/licenses/gpl-3.0.txt
@@ -7,6 +7,8 @@
 
 import copy
 import sys
+
+from aidesign_blend.libs import pack_info
 
 # Aliases
 
@@ -17,7 +19,7 @@ _stderr = sys.stderr
 
 # -
 
-brief_usage = "blend help"
+brief_usage = "blend info"
 """Brief usage."""
 
 usage = str(
@@ -30,34 +32,12 @@ usage = str(
 
 info = fr"""
 
-Usage: blend <command> ...
-==== Commands ====
-help:
-    When:   You need help info. For example, now.
-    How-to: blend help
-info:
-    When:   You need package info.
-    How-to: blend info
-create:
-    When:   You create a new blend project with the defaults.
-    How-to: blend create <path-to-project>
-status:
-    When:   You check the application status.
-    How-to: blend status
-project:
-    When:   You select the blend project for the next session.
-    How-to: blend project <path-to-project>
-frags:
-    When:   You select the folder of fragments for the next session.
-    How-to: blend frags <path-to-frags>
-start:
-    When:   You start a session.
-    How-to: blend start
-    Notes:  You will be prompted with the command status. You need to confirm to continue.
-reset:
-    When:   You want to reset the app data.
-    How-to: blend reset
-    Notes:  You will lose the current app data after the reset.
+AIDesign-Blend package info:
+    Package name:   {pack_info.pack_name}
+    Version:        {pack_info.ver}
+    Author:         {pack_info.author}
+    Copyright:      {pack_info.cr}
+    Description:    {pack_info.desc}
 
 """.strip()
 """Primary info to display."""

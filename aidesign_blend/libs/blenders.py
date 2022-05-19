@@ -197,7 +197,7 @@ class Blender:
         rand_rot_key = "random_rotating"
 
         if rand_rot_key in self._config:
-            rand_rot = self._config["random_rotating"]
+            rand_rot = self._config[rand_rot_key]
             self.logln(f"rand_rot: {rand_rot}", 101)
             rand_rot = bool(rand_rot)
             c.rand_rot = rand_rot

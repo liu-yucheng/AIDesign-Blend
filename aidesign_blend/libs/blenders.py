@@ -537,7 +537,7 @@ class Blender:
                     if rot_180:
                         rot = "180"
                     else:
-                        rot = "0"
+                        rot = ""
                     # end if
 
                     rot_matrix[iy][ix] = rot
@@ -546,7 +546,7 @@ class Blender:
         else:
             for iy in range(c.y_frag_count):
                 for ix in range(c.x_frag_count):
-                    rot_matrix[iy][ix] = "0"
+                    rot_matrix[iy][ix] = ""
                 # end for
             # end for
         # end if

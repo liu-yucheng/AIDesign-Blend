@@ -33,6 +33,7 @@ Configuration item descriptions are listed below.
 - `random_frags`. Random fragments. Type `bool`.
 - `avoid_random_duplicates`. Type `bool`.
 - `random_flipping`. Type `bool`.
+- `random_rotating`. Type `bool`.
 - `frag_resolution`. Fragment resolution in pixels. Type `int`. Range [2, ). Will be converted to the nearest bigger even number.
 - `x_frag_count`. X-axis fragment count. Type `int`. Range [2, ).
 - `y_frag_count`. Y-axis fragment count. Type `int`. Range [2, ).

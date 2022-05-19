@@ -3,6 +3,7 @@
     "random_frags": true,
     "avoid_random_duplicates": true,
     "random_flipping": true,
+    "random_rotating": true,
     "frag_resolution": 64,
     "x_frag_count": 4,
     "y_frag_count": 4,

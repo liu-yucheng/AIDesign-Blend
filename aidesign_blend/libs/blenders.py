@@ -16,13 +16,16 @@ import typing
 from os import path as ospath
 from PIL import Image as pil_image
 
+from aidesign_blend.libs import contexts
 from aidesign_blend.libs import defaults
 from aidesign_blend.libs import grads
 from aidesign_blend.libs import utils
 
+# Aliases
+
+_BlenderContext = contexts.BlenderContext
 _Callable = typing.Callable
 _clamp = utils.clamp_float
-_DotDict = utils.DotDict
 _isfile = ospath.isfile
 _join = ospath.join
 _listdir = os.listdir
@@ -49,89 +52,11 @@ _seed = random.seed
 _shuffle = random.shuffle
 _what = imghdr.what
 
+# End
+
 
 class Blender:
     """Blender."""
-
-    class Context(_DotDict):
-        """Context."""
-
-        rand_mode = None
-        """Random mode."""
-        rand_seed = None
-        """Random seed."""
-        rand_frags = None
-        """Random fragments."""
-        avoid_rand_dups = None
-        """Avoid random fragment duplicates."""
-        rand_flip = None
-        """Random flipping."""
-        save_frags_grid = None
-        """Save fragments grid."""
-        save_frag_locs = None
-        """Save fragment locations."""
-
-        frag_width = None
-        """Fragment width."""
-        frag_height = None
-        """Fragment height."""
-        x_frag_count = None
-        """X fragment count."""
-        y_frag_count = None
-        """Y fragment count."""
-
-        frags_path = None
-        """Fragments path."""
-        frags_name = None
-        """Fragments name."""
-        frag_count = None
-        """Fragment count."""
-        frag_locs = None
-        """Fragment locations."""
-
-        index_matrix = None
-        """Index matrix. Subscripts [y][x]."""
-        flip_matrix = None
-        """Flipping matrix. Subscripts [y][x]."""
-        bm_width = None
-        """Blend matrix width."""
-        bm_height = None
-        """Blend matrix height."""
-        ulbm = None
-        """Upper left blend matrix. Numpy array. Subscript [x, y]."""
-        urbm = None
-        """Upper right blend matrix. Numpy array. Subscript [x, y]."""
-        llbm = None
-        """Lower left blend matrix.Numpy array. Subscript [x, y]."""
-        lrbm = None
-        """Lower right blend matrix. Numpy array. Subscript [x, y]."""
-
-        canvas_width = None
-        """Canvas width."""
-        canvas_height = None
-        """Canvas height."""
-        canvas = None
-        """Canvas. Numpy array. Subscript [x, y]."""
-
-        frags_grid_pad = None
-        """Fragments grid padding."""
-        frags_grid_pad_bright = None
-        """Fragments grid padding brightness."""
-        frags_grid_width = None
-        """Fragments grid width."""
-        frags_grid_height = None
-        """Fragments grid height."""
-        frags_grid = None
-        """Fragments grid. Numpy array. Subscript [x, y]."""
-
-        custom_grad_enabled = None
-        """Custom gradient function enabled."""
-        grad_func = None
-        """Gradient function. Used to calculate the gradient progress. Input and output range [0, 1]."""
-
-        frag_locs_text = None
-        """Fragment locations text."""
-    # end class
 
     def __init__(self, frags_path, proj_path, logs, debug_level=0):
         """Inits self with the given args."""
@@ -145,7 +70,7 @@ class Blender:
         """Debug level."""
         self._config = {}
         """Configuration."""
-        self._context = type(self).Context()
+        self._context = _BlenderContext()
         """Context."""
 
     def logstr(self, string="", debug_level=0):
@@ -261,12 +186,28 @@ class Blender:
         # Parse random_flipping
 
         rand_flip = self._config["random_flipping"]
-        self.logln(f"random_flipping: {rand_flip}", 101)
+        self.logln(f"rand_flip: {rand_flip}", 101)
         rand_flip = bool(rand_flip)
         c.rand_flip = rand_flip
         self.logln(f"Random flipping: {rand_flip}", 1)
 
         # End parse random_flipping
+        # Parse random_rotating
+
+        rand_rot_key = "random_rotating"
+
+        if rand_rot_key in self._config:
+            rand_rot = self._config["random_rotating"]
+            self.logln(f"rand_rot: {rand_rot}", 101)
+            rand_rot = bool(rand_rot)
+            c.rand_rot = rand_rot
+        else:
+            rand_rot = False
+        # end if
+
+        self.logln(f"Random rotating: {rand_rot}", 1)
+
+        # End parse random_rotating
         # Parse frag_resolution
 
         frag_res = self._config["frag_resolution"]
@@ -584,6 +525,35 @@ class Blender:
         self.logln(f"flip_matrix: {flip_matrix}", 103)
 
         # End make flip matrix
+        # Make rotation matrix
+
+        rot_matrix = self._make_2d_matrix(c.y_frag_count, c.x_frag_count)
+
+        if c.rand_rot:
+            for iy in range(c.y_frag_count):
+                for ix in range(c.x_frag_count):
+                    rot_180 = utils.rand_bool()
+
+                    if rot_180:
+                        rot = "180"
+                    else:
+                        rot = "0"
+                    # end if
+
+                    rot_matrix[iy][ix] = rot
+                # end for
+            # end for
+        else:
+            for iy in range(c.y_frag_count):
+                for ix in range(c.x_frag_count):
+                    rot_matrix[iy][ix] = "0"
+                # end for
+            # end for
+        # end if
+
+        self.logln(f"rot_matrix: {rot_matrix}", 103)
+
+        # End make rotation matrix
         # Make blend matrices
 
         width = c.frag_width // 2
@@ -663,6 +633,8 @@ class Blender:
         self.logln("Prepared the index matrix", 1)
         c.flip_matrix = flip_matrix
         self.logln("Prepared the flipping matrix", 1)
+        c.rot_matrix = rot_matrix
+        self.logln("Prepared the rotation matrix", 1)
         c.bm_width = width
         c.bm_height = height
         c.ulbm = ulbm
@@ -751,6 +723,11 @@ class Blender:
         ll_flip = c.flip_matrix[lly][llx]
         lr_flip = c.flip_matrix[lry][lrx]
 
+        ul_rot = c.rot_matrix[uly][ulx]
+        ur_rot = c.rot_matrix[ury][urx]
+        ll_rot = c.rot_matrix[lly][llx]
+        lr_rot = c.rot_matrix[lry][lrx]
+
         ul_loc = c.frag_locs[ul_index]
         ur_loc = c.frag_locs[ur_index]
         ll_loc = c.frag_locs[ll_index]
@@ -768,32 +745,46 @@ class Blender:
         ll_image = ll_image.resize(size=size, resample=resample)
         lr_image = lr_image.resize(size=size, resample=resample)
 
-        xflip = pil_image.FLIP_TOP_BOTTOM
-        yflip = pil_image.FLIP_LEFT_RIGHT
+        x_flip = pil_image.FLIP_TOP_BOTTOM
+        y_flip = pil_image.FLIP_LEFT_RIGHT
 
         if "x" in ul_flip:
-            ul_image = ul_image.transpose(xflip)
+            ul_image = ul_image.transpose(x_flip)
 
         if "y" in ul_flip:
-            ul_image = ul_image.transpose(yflip)
+            ul_image = ul_image.transpose(y_flip)
 
         if "x" in ur_flip:
-            ur_image = ur_image.transpose(xflip)
+            ur_image = ur_image.transpose(x_flip)
 
         if "y" in ur_flip:
-            ur_image = ur_image.transpose(yflip)
+            ur_image = ur_image.transpose(y_flip)
 
         if "x" in ll_flip:
-            ll_image = ll_image.transpose(xflip)
+            ll_image = ll_image.transpose(x_flip)
 
         if "y" in ll_flip:
-            ll_image = ll_image.transpose(yflip)
+            ll_image = ll_image.transpose(y_flip)
 
         if "x" in lr_flip:
-            lr_image = lr_image.transpose(xflip)
+            lr_image = lr_image.transpose(x_flip)
 
         if "y" in lr_flip:
-            lr_image = lr_image.transpose(yflip)
+            lr_image = lr_image.transpose(y_flip)
+
+        rot_180 = pil_image.ROTATE_180
+
+        if ul_rot == "180":
+            ul_image = ul_image.transpose(rot_180)
+
+        if ur_rot == "180":
+            ur_image = ur_image.transpose(rot_180)
+
+        if ll_rot == "180":
+            ll_image = ll_image.transpose(rot_180)
+
+        if lr_rot == "180":
+            lr_image = lr_image.transpose(rot_180)
 
         ul_image = ul_image.crop(ul_box)
         ur_image = ur_image.crop(ur_box)
@@ -939,15 +930,21 @@ class Blender:
         resample = pil_image.BICUBIC
         image = image.resize(size, resample=resample)
 
-        xflip = pil_image.FLIP_TOP_BOTTOM
-        yflip = pil_image.FLIP_LEFT_RIGHT
+        x_flip = pil_image.FLIP_TOP_BOTTOM
+        y_flip = pil_image.FLIP_LEFT_RIGHT
         flip = c.flip_matrix[block_y][block_x]
 
         if "x" in flip:
-            image = image.transpose(xflip)
+            image = image.transpose(x_flip)
 
         if "y" in flip:
-            image = image.transpose(yflip)
+            image = image.transpose(y_flip)
+
+        rot_180 = pil_image.ROTATE_180
+        rot = c.rot_matrix[block_y][block_x]
+
+        if rot == "180":
+            image = image.transpose(rot_180)
 
         image_np = _nparray(image, dtype=_npsingle)
         axis_order = [1, 0, 2]

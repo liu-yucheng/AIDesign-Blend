@@ -6,7 +6,6 @@
 # Last updated by username: liu-yucheng
 
 import datetime
-import imghdr
 import numpy
 import os
 import pathlib
@@ -26,7 +25,6 @@ from aidesign_blend.libs import utils
 _BlenderContext = contexts.BlenderContext
 _Callable = typing.Callable
 _clamp = utils.clamp_float
-_isfile = ospath.isfile
 _join = ospath.join
 _listdir = os.listdir
 _load_json = utils.load_json
@@ -50,7 +48,6 @@ _rand_bool = utils.rand_bool
 _save_text = utils.save_text
 _seed = random.seed
 _shuffle = random.shuffle
-_what = imghdr.what
 
 # End
 
@@ -364,6 +361,13 @@ class Blender:
 
         self.logln("Completed parsing blenders config", 1)
 
+    def _tweak_pil_safety(self):
+        max_width = 65535
+        max_height = 65535
+        max_pixels = max_width * max_height
+        pil_image.MAX_IMAGE_PIXELS = max_pixels
+        self.logln(f"Tweaked PIL safety max pixels:  Width: {max_width}  Height: {max_height}  Total: {max_pixels}", 1)
+
     def _read_frags_path(self, frags_path):
         frag_names = _listdir(frags_path)
         frag_names.sort()
@@ -378,10 +382,16 @@ class Blender:
         frag_locs = []
 
         for loc in orig_frag_locs:
-            is_file = _isfile(loc)
-            is_img = is_file and _what(loc) is not None
+            try:
+                image = _pil_image_open(loc)
+                image_format = image.format
+            except Exception as _:
+                image_format = None
+            # end try
 
-            if is_img:
+            is_image = image_format is not None
+
+            if is_image:
                 frag_locs.append(loc)
         # end for
 
@@ -687,13 +697,6 @@ class Blender:
             c.frags_grid = frags_grid
             self.logln(f"Prepared the fragments grid:  Width: {width}  Height: {height}", 1)
         # end if
-
-    def _tweak_pil_safety(self):
-        max_width = 65535
-        max_height = 65535
-        max_pixels = max_width * max_height
-        pil_image.MAX_IMAGE_PIXELS = max_pixels
-        self.logln(f"Tweaked PIL safety max pixels:  Width: {max_width}  Height: {max_height}  Total: {max_pixels}", 1)
 
     def _blend_block(self, block_y, block_x):
         c = self._context
@@ -1123,11 +1126,11 @@ class Blender:
         self.logln(info)
         self._read_config()
         self._parse_config()
+        self._tweak_pil_safety()
         self._prep_frags()
         self._prep_matrices()
         self._prep_canvas()
         self._prep_frags_grid()
-        self._tweak_pil_safety()
 
         info = str(
             "-\n"

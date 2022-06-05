@@ -1,7 +1,8 @@
-# Default ignored file name pattern
-**/.*/
+# Handle patterns that start with a dot
+**/.*
+!**/.git*
 
-# Project specific ignored files
+# Project-specific ignored files
 **/.aidesign_blend_app_data/
 **/.aidesign_blend_test_data/
 **/.vscode/

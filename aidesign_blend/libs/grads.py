@@ -204,11 +204,17 @@ class Poly1V(GradFunc):
             coef = self.coefs[idx]
             exp = self.exps[idx]
 
-            term_str = "  {} * (x ^ {}) +".format(coef, exp)
+            if idx == 0:
+                term_str = "  {} * (x ^ {}) ...".format(coef, exp)
+            elif idx == self.term_count - 1:
+                term_str = "  + {} * (x ^ {})".format(coef, exp)
+            else:
+                term_str = "  + {} * (x ^ {}) ...".format(coef, exp)
+            # end if
+
             lines.append(term_str)
         # end for
 
         lines = [str(elem) for elem in lines]
         result = "\n".join(lines)
-        result = result[:-2]
         return result

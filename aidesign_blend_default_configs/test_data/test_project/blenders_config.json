@@ -5,14 +5,14 @@
     "random_flipping": true,
     "random_rotating": true,
     "frag_resolution": 64,
+    "x_frag_count": 4,
+    "y_frag_count": 4,
+    "save_frag_locations": true,
     "frag_resolution_overrides": {
         "apply": true,
         "x_resolution": 72,
         "y_resolution": 48
     },
-    "x_frag_count": 4,
-    "y_frag_count": 4,
-    "save_frag_locations": true,
     "frags_grid": {
         "save": true,
         "padding": 2,

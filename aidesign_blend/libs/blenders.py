@@ -220,11 +220,64 @@ class Blender:
         if not frag_res % 2 == 0:
             frag_res += 1
 
-        c.frag_width = frag_res
-        c.frag_height = frag_res
-        self.logln(f"Fragment:  Width: {frag_res}  Height: {frag_res}", 1)
-
         # End parse frag_resolution
+        # Parse frag_resolution_overrides
+
+        frag_res_overrides_key = "frag_resolution_overrides"
+
+        if frag_res_overrides_key in self._config:
+            frag_res_overrides_apply = self._config[frag_res_overrides_key]["apply"]
+            frag_res_overrides_apply = bool(frag_res_overrides_apply)
+        else:
+            frag_res_overrides_apply = False
+        # end if
+
+        if frag_res_overrides_apply:
+            # Parse frag_x_res
+            frag_x_res = self._config[frag_res_overrides_key]["x_resolution"]
+            self.logln(f"frag_x_res: {frag_x_res}", 101)
+            frag_x_res = int(frag_x_res)
+
+            if frag_x_res < 0:
+                frag_x_res *= -1
+
+            if frag_x_res < 2:
+                frag_x_res = 2
+
+            if not frag_x_res % 2 == 0:
+                frag_x_res += 1
+
+            # End parse frag_x_res
+            # Parse frag_y_res
+            frag_y_res = self._config[frag_res_overrides_key]["y_resolution"]
+            self.logln(f"frag_y_res: {frag_y_res}", 101)
+            frag_y_res = int(frag_y_res)
+
+            if frag_y_res < 0:
+                frag_y_res *= -1
+
+            if frag_y_res < 2:
+                frag_y_res = 2
+
+            if not frag_y_res % 2 == 0:
+                frag_y_res += 1
+
+            # End parse frag_y_res
+
+            frag_width = frag_x_res
+            frag_height = frag_y_res
+            frag_shape = "rectangle"
+        else:
+            frag_width = frag_res
+            frag_height = frag_res
+            frag_shape = "square"
+        # end if
+
+        c.frag_width = frag_width
+        c.frag_height = frag_height
+        self.logln(f"Fragment ({frag_shape}):  Width: {frag_width}  Height: {frag_height}", 1)
+
+        # End parse frag_resolution overrides
         # Parse x_frag_count
 
         x_frag_count = self._config["x_frag_count"]

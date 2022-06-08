@@ -35,6 +35,10 @@ Configuration item descriptions are listed below.
 - `random_flipping`. Type `bool`.
 - `random_rotating`. Type `bool`.
 - `frag_resolution`. Fragment resolution in pixels. Type `int`. Range [2, ). Will be converted to the nearest bigger even number.
+- `frag_resolution_overrides`. Fragment resolution override items. Type `dict`.
+  - `apply`. Whether to apply the overrides and ignore the above `frag_resolution` item. Type `bool`.
+  - `x_resolution`. X axis resolution in pixels. Type `int`. Range [2, ). Will be converted to the nearest bigger even number.
+  - `y_resolution`. Y axis resolution in pixels. Type `int`. Range [2, ). Will be converted to the nearest bigger even number.
 - `x_frag_count`. X-axis fragment count. Type `int`. Range [2, ).
 - `y_frag_count`. Y-axis fragment count. Type `int`. Range [2, ).
 - `save_frag_locations`. Whether to save the fragment source image locations. Type `bool`.

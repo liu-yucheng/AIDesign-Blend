@@ -21,31 +21,48 @@ class Context(_DotDict):
 class BlenderContext(Context):
     """Blender context."""
 
-    rand_mode = None
+    # Items directly related to blenders config
+
+    rand_mode: str = None
     """Random mode."""
-    rand_seed = None
+    rand_seed: int = None
     """Random seed."""
-    rand_frags = None
+    rand_frags: bool = None
     """Random fragments."""
-    avoid_rand_dups = None
+    avoid_rand_dups: bool = None
     """Avoid random fragment duplicates."""
-    rand_flip = None
+    rand_flip: bool = None
     """Random flipping."""
-    rand_rot = None
+    rand_rot: bool = None
     """Random rotating."""
-    save_frags_grid = None
-    """Save fragments grid."""
-    save_frag_locs = None
+    frag_width: int = None
+    """Fragment width."""
+    frag_height: int = None
+    """Fragment height."""
+    x_frag_count: int = None
+    """X fragment count."""
+    y_frag_count: int = None
+    """Y fragment count."""
+    save_frag_locs: bool = None
     """Save fragment locations."""
 
-    frag_width = None
-    """Fragment width."""
-    frag_height = None
-    """Fragment height."""
-    x_frag_count = None
-    """X fragment count."""
-    y_frag_count = None
-    """Y fragment count."""
+    save_frags_grid: bool = None
+    """Save fragments grid."""
+    frags_grid_pad: int = None
+    """Fragments grid padding."""
+    frags_grid_pad_bright: int = None
+    """Fragments grid padding brightness."""
+
+    custom_grad_enabled: bool = None
+    """Custom gradient function enabled."""
+
+    # End
+
+    # The grad func item
+    grad_func = None
+    """Gradient function. Used to calculate the gradient progress. Input and output range [0, 1]."""
+
+    # Frags folder related items
 
     frags_path = None
     """Fragments path."""
@@ -56,12 +73,16 @@ class BlenderContext(Context):
     frag_locs = None
     """Fragment locations."""
 
+    # End
+    # Helper matrix items
+
     index_matrix = None
     """Index matrix. Subscripts [y][x]."""
     flip_matrix = None
     """Flipping matrix. Subscripts [y][x]."""
     rot_matrix = None
     """Rotation matrix. Subscripts [y][x]."""
+
     bm_width = None
     """Blend matrix width."""
     bm_height = None
@@ -75,6 +96,9 @@ class BlenderContext(Context):
     lrbm = None
     """Lower right blend matrix. Numpy array. Subscript [x, y]."""
 
+    # End
+    # Canvas related items
+
     canvas_width = None
     """Canvas width."""
     canvas_height = None
@@ -82,10 +106,9 @@ class BlenderContext(Context):
     canvas = None
     """Canvas. Numpy array. Subscript [x, y]."""
 
-    frags_grid_pad = None
-    """Fragments grid padding."""
-    frags_grid_pad_bright = None
-    """Fragments grid padding brightness."""
+    # End
+    # Frags grid related items
+
     frags_grid_width = None
     """Fragments grid width."""
     frags_grid_height = None
@@ -93,10 +116,8 @@ class BlenderContext(Context):
     frags_grid = None
     """Fragments grid. Numpy array. Subscript [x, y]."""
 
-    custom_grad_enabled = None
-    """Custom gradient function enabled."""
-    grad_func = None
-    """Gradient function. Used to calculate the gradient progress. Input and output range [0, 1]."""
+    # End
 
+    # The frag locs item
     frag_locs_text = None
     """Fragment locations text."""

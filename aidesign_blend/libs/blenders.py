@@ -15,6 +15,7 @@ import typing
 from os import path as ospath
 from PIL import Image as pil_image
 
+from aidesign_blend.libs import configs
 from aidesign_blend.libs import contexts
 from aidesign_blend.libs import defaults
 from aidesign_blend.libs import grads
@@ -22,6 +23,7 @@ from aidesign_blend.libs import utils
 
 # Aliases
 
+_BlendersConfig = configs.BlendersConfig
 _BlenderContext = contexts.BlenderContext
 _Callable = typing.Callable
 _clamp = utils.clamp_float
@@ -79,6 +81,7 @@ class Blender:
         """
         if debug_level <= self._debug_level:
             _logstr(self._logs, string)
+        # end if
 
     def logln(self, line="", debug_level=0):
         """Logs a line.
@@ -91,9 +94,9 @@ class Blender:
         self.logstr(line, debug_level)
 
     def _read_config(self):
-        config_loc = _join(self._proj_path, defaults.blenders_config_name)
+        config_loc = _join(self._proj_path, _BlendersConfig.default_name)
         self.logln(f"Blenders config location: {config_loc}", 1)
-        self._config = _load_json(config_loc)
+        self._config = _BlendersConfig.load(config_loc)
         self.logln("Completed reading blenders config", 1)
 
     def _pad_coefs_exps(self, coefs, exps):
@@ -132,285 +135,142 @@ class Blender:
     def _parse_config(self):
         c = self._context
 
+        self._config = _BlendersConfig.verify(self._config)
+        self.logln("Verified blenders config", 1)
+
         # Parse manual_seed
 
         manual_seed = self._config["manual_seed"]
-        self.logln(f"manual_seed: {manual_seed}", 101)
 
         if manual_seed is not None:
             manual_seed = int(manual_seed)
             manual_seed = manual_seed % (2 ** 32 - 1)
 
         if manual_seed is None:
-            rand_mode = "Auto"
             _seed(None)
+            rand_mode = "Auto"
             rand_seed = _randint(0, 2 ** 32 - 1)
-        else:  # elif manual_seed is not None:
+        else:
             rand_mode = "Manual"
             rand_seed = manual_seed
         # end if
 
         _seed(rand_seed)
         _npseed(rand_seed)
-        c.rand_mode = rand_mode
         c.rand_seed = rand_seed
+        c.rand_mode = rand_mode
         self.logln(f"Random:  Mode: {rand_mode}  Seed: {rand_seed}", 1)
 
-        # End parse manual seed
+        # End
         # Parse random_frags
 
-        rand_frags = self._config["random_frags"]
-        self.logln(f"random_frags: {rand_frags}", 101)
-        rand_frags = bool(rand_frags)
+        rand_frags: bool = self._config["random_frags"]
         c.rand_frags = rand_frags
         self.logln(f"Random fragments: {rand_frags}", 1)
 
-        # End parse random_frags
+        # End
         # Parse avoid_random_duplicates
 
-        avoid_rand_dups_key = "avoid_random_duplicates"
-        avoid_rand_dups = False
-
-        if avoid_rand_dups_key in self._config:
-            avoid_rand_dups = self._config[avoid_rand_dups_key]
-            self.logln(f"avoid_rand_dups: {avoid_rand_dups}", 101)
-
-        avoid_rand_dups = bool(avoid_rand_dups)
+        avoid_rand_dups: bool = self._config["avoid_random_duplicates"]
         c.avoid_rand_dups = avoid_rand_dups
         self.logln(f"Avoid random fragment duplicates: {avoid_rand_dups}", 1)
 
-        # End parse avoid_random_duplicates
+        # End
         # Parse random_flipping
 
-        rand_flip = self._config["random_flipping"]
-        self.logln(f"rand_flip: {rand_flip}", 101)
-        rand_flip = bool(rand_flip)
+        rand_flip: bool = self._config["random_flipping"]
         c.rand_flip = rand_flip
         self.logln(f"Random flipping: {rand_flip}", 1)
 
-        # End parse random_flipping
+        # End
         # Parse random_rotating
 
-        rand_rot_key = "random_rotating"
-
-        if rand_rot_key in self._config:
-            rand_rot = self._config[rand_rot_key]
-            self.logln(f"rand_rot: {rand_rot}", 101)
-            rand_rot = bool(rand_rot)
-            c.rand_rot = rand_rot
-        else:
-            rand_rot = False
-        # end if
-
+        rand_rot: bool = self._config["random_rotating"]
+        c.rand_rot = rand_rot
         self.logln(f"Random rotating: {rand_rot}", 1)
 
-        # End parse random_rotating
-        # Parse frag_resolution
-
-        frag_res = self._config["frag_resolution"]
-        self.logln(f"frag_res: {frag_res}", 101)
-        frag_res = int(frag_res)
-
-        if frag_res < 0:
-            frag_res *= -1
-
-        if frag_res < 2:
-            frag_res = 2
-
-        if not frag_res % 2 == 0:
-            frag_res += 1
-
-        # End parse frag_resolution
-        # Parse frag_resolution_overrides
+        # End
+        # Parse frag_resolution, frag_resolution_overrides
 
         frag_res_overrides_key = "frag_resolution_overrides"
 
-        if frag_res_overrides_key in self._config:
-            frag_res_overrides_apply = self._config[frag_res_overrides_key]["apply"]
-            frag_res_overrides_apply = bool(frag_res_overrides_apply)
-        else:
-            frag_res_overrides_apply = False
-        # end if
-
-        if frag_res_overrides_apply:
-            # Parse frag_x_res
-            frag_x_res = self._config[frag_res_overrides_key]["x_resolution"]
-            self.logln(f"frag_x_res: {frag_x_res}", 101)
-            frag_x_res = int(frag_x_res)
-
-            if frag_x_res < 0:
-                frag_x_res *= -1
-
-            if frag_x_res < 2:
-                frag_x_res = 2
-
-            if not frag_x_res % 2 == 0:
-                frag_x_res += 1
-
-            # End parse frag_x_res
-            # Parse frag_y_res
-            frag_y_res = self._config[frag_res_overrides_key]["y_resolution"]
-            self.logln(f"frag_y_res: {frag_y_res}", 101)
-            frag_y_res = int(frag_y_res)
-
-            if frag_y_res < 0:
-                frag_y_res *= -1
-
-            if frag_y_res < 2:
-                frag_y_res = 2
-
-            if not frag_y_res % 2 == 0:
-                frag_y_res += 1
-
-            # End parse frag_y_res
-
-            frag_width = frag_x_res
-            frag_height = frag_y_res
+        if self._config[frag_res_overrides_key]["apply"]:
+            x_res: int = self._config[frag_res_overrides_key]["x_resolution"]
+            y_res: int = self._config[frag_res_overrides_key]["y_resolution"]
             frag_shape = "rectangle"
+            frag_width = x_res
+            frag_height = y_res
         else:
+            frag_res: int = self._config["frag_resolution"]
+            frag_shape = "square"
             frag_width = frag_res
             frag_height = frag_res
-            frag_shape = "square"
         # end if
 
         c.frag_width = frag_width
         c.frag_height = frag_height
         self.logln(f"Fragment ({frag_shape}):  Width: {frag_width}  Height: {frag_height}", 1)
 
-        # End parse frag_resolution overrides
-        # Parse x_frag_count
+        # End
+        # Parse x_frag_count, y_frag_count
 
-        x_frag_count = self._config["x_frag_count"]
-        self.logln(f"x_frag_count: {x_frag_count}", 101)
-        x_frag_count = int(x_frag_count)
-
-        if x_frag_count < 0:
-            x_frag_count *= -1
-
-        if x_frag_count < 2:
-            x_frag_count = 2
-
-        c.x_frag_count = x_frag_count
-
-        # End parse x_frag_count
-        # Parse y_frag_count
-
-        y_frag_count = self._config["y_frag_count"]
-        self.logln(f"y_frag_count: {y_frag_count}", 101)
-        y_frag_count = int(y_frag_count)
-
-        if y_frag_count < 0:
-            y_frag_count *= -1
-
-        if y_frag_count < 2:
-            y_frag_count = 2
-
-        c.y_frag_count = y_frag_count
+        x_frag_count: int = self._config["x_frag_count"]
+        y_frag_count: int = self._config["y_frag_count"]
         total_frag_count = x_frag_count * y_frag_count
+        c.x_frag_count = x_frag_count
+        c.y_frag_count = y_frag_count
         self.logln(f"Fragment count:  X: {x_frag_count}  Y: {y_frag_count}  Total: {total_frag_count}", 1)
 
-        # End parse y_frag_count
+        # End
         # Parse save_frag_locations
 
-        save_frag_locs_key = "save_frag_locations"
-
-        if save_frag_locs_key in self._config:
-            save_frag_locs = bool(self._config[save_frag_locs_key])
-        else:
-            save_frag_locs = False
-        # end if
-
-        self.logln(f"save_frag_locs: {save_frag_locs}", 101)
+        save_frag_locs: bool = self._config["save_frag_locations"]
         c.save_frag_locs = save_frag_locs
         self.logln(f"Save fragment locations: {save_frag_locs}", 1)
 
-        # End parse save_frag_locations
+        # End
+        # Already parsed frag_resolution_overrides; End
         # Parse frags_grid
 
         frags_grid_key = "frags_grid"
-        save_key = "save"
-        save_frags_grid = False
-
-        if frags_grid_key in self._config:
-            fgrid_config = self._config[frags_grid_key]
-
-        if save_key in fgrid_config:
-            save_frags_grid = bool(fgrid_config[save_key])
-
-        self.logln(f"save_frags_grid: {save_frags_grid}", 101)
-
-        if save_frags_grid:
-            frags_grid_pad = fgrid_config["padding"]
-            frags_grid_pad = int(frags_grid_pad)
-
-            if frags_grid_pad < 0:
-                frags_grid_pad *= -1
-
-            frags_grid_pad_bright = fgrid_config["padding_brightness"]
-            frags_grid_pad_bright = int(frags_grid_pad_bright)
-
-            if frags_grid_pad_bright < 0:
-                frags_grid_pad_bright *= -1
-
-            if frags_grid_pad_bright > 255:
-                frags_grid_pad_bright = 255
-
-        else:  # elif not save_fgrid:
-            frags_grid_pad = None
-            frags_grid_pad_bright = None
-        # end if
-
-        if save_frags_grid:
-            info = str(
-                f"frags_grid_pad: {frags_grid_pad}\n"
-                f"frags_grid_pad_bright: {frags_grid_pad_bright}\n"
-            )
-
-            self.logstr(info, 101)
-        # end if
-
+        save_frags_grid: bool = self._config[frags_grid_key]["save"]
+        frags_grid_pad: int = self._config[frags_grid_key]["padding"]
+        frags_grid_pad_bright: int = self._config[frags_grid_key]["padding_brightness"]
         c.save_frags_grid = save_frags_grid
         c.frags_grid_pad = frags_grid_pad
         c.frags_grid_pad_bright = frags_grid_pad_bright
-        self.logln(f"Save fragments grid: {save_frags_grid}", 1)
 
-        if save_frags_grid:
-            self.logln(f"Fragments grid:  Padding: {frags_grid_pad}  Padding brightness: {frags_grid_pad_bright}", 1)
+        info = str(
+            f"Fragments grid:"
+            f"  Save: {save_frags_grid}"
+            f"  Padding: {frags_grid_pad}"
+            f"  Padding brightness: {frags_grid_pad_bright}"
+        )
 
-        # End parse frags_grid
+        self.logln(info, 1)
+
+        # End
         # Parse custom_gradient
 
         custom_grad_key = "custom_gradient"
-
-        if custom_grad_key in self._config:
-            custom_grad_enabled = bool(self._config[custom_grad_key]["enabled"])
-        else:
-            custom_grad_enabled = False
-        # end if
+        custom_grad_enabled: bool = self._config[custom_grad_key]["enabled"]
 
         if custom_grad_enabled:
-            custom_grad_config = self._config[custom_grad_key]
-            coefs = custom_grad_config["coefficients"]
-            exps = custom_grad_config["exponents"]
+            coefs: list[float] = self._config[custom_grad_key]["coefficients"]
+            exps: list[float] = self._config[custom_grad_key]["exponents"]
             coefs, exps = self._pad_coefs_exps(coefs, exps)
+            grad_name = "custom"
             grad_func = _Poly1V(coefs, exps)
-        else:  # elif not cust_grad_enabled:
+        else:
+            grad_name = "default"
             grad_func = _LU()
         # end if
 
         c.custom_grad_enabled = custom_grad_enabled
         c.grad_func = grad_func
+        self.logln(f"Gradient function ({grad_name}): \" {grad_func.fnstr()} \"", 1)
 
-        if custom_grad_enabled:
-            grad_name = "custom"
-        else:  # elif not cust_grad_enabled:
-            grad_name = "default"
-        # end if
-
-        self.logln(f"Prepared gradient function: {grad_name}", 1)
-        self.logln(f"Gradient function: \" {grad_func.fnstr()} \"", 1)
-
-        # End parse custom_gradient
+        # End
 
         self.logln("Completed parsing blenders config", 1)
 

@@ -252,6 +252,28 @@ class BlendersConfig(Config):
             subdict[pad_bright_key] = 16
         # end if
 
+        subdict = from_dict[frags_grid_key]
+        pad_color_key = "padding_color_overrides"
+        apply_key = "apply"
+        red_key = "red"
+        green_key = "green"
+        blue_key = "blue"
+
+        if pad_color_key in subdict:
+            subdict2 = subdict[pad_color_key]
+            cls._verify_bool(subdict2, apply_key)
+            cls._verify_int_ge_0_le_255(subdict2, red_key)
+            cls._verify_int_ge_0_le_255(subdict2, green_key)
+            cls._verify_int_ge_0_le_255(subdict2, blue_key)
+        else:
+            subdict[pad_color_key] = {}
+            subdict2 = subdict[pad_color_key]
+            subdict2[apply_key] = False
+            subdict2[red_key] = 255
+            subdict2[green_key] = 255
+            subdict2[blue_key] = 255
+        # end if
+
         cust_grad_key = "custom_gradient"
         enabled_key = "enabled"
         coefs_key = "coefficients"

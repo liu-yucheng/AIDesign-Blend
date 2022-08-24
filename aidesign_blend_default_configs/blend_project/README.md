@@ -38,18 +38,23 @@ Configuration item descriptions are listed below.
 - `x_frag_count`. X-axis fragment count. Type `int`. Range [2, ).
 - `y_frag_count`. Y-axis fragment count. Type `int`. Range [2, ).
 - `save_frag_locations`. Whether to save the fragment source image locations. Type `bool`.
-- `frags_grid`. Fragments grid configuration. Type `dict`.
-  - `save`. Whether to save the fragments grid. Type `bool`.
-  - `padding`. Type `int`. Range [0, ).
-  - `padding_brightness`. Type `int`. Range [0, 255].
-- `custom_gradient`. Custom gradient configuration. Type `dict`.
-  - `enabled`. Whether to enable custom gradient. Type `bool`.
-  - `coefficients`. Gradient polynomial coefficients. Type `list[float]`.
-  - `exponents`. Gradient polynomial coefficients. Type `list[float]`.
 - `frag_resolution_overrides`. Fragment resolution override items. Type `dict`.
   - `apply`. Whether to apply the overrides and ignore the above `frag_resolution` item. Type `bool`.
   - `x_resolution`. X axis resolution in pixels. Type `int`. Range [2, ). Will be converted to the nearest bigger even number.
   - `y_resolution`. Y axis resolution in pixels. Type `int`. Range [2, ). Will be converted to the nearest bigger even number.
+- `frags_grid`. Fragments grid configuration. Type `dict`.
+  - `save`. Whether to save the fragments grid. Type `bool`.
+  - `padding`. Type `int`. Range [0, ).
+  - `padding_brightness`. Type `int`. Range [0, 255].
+  - `padding_color_overrides`. Type `dict`.
+    - `apply`. Whether to apply the overrides and ignore the above `padding_brightness` item. Type `bool`.
+    - `red`. Type `int`. Range [0, 255].
+    - `green`. Type `int`. Range [0, 255].
+    - `blue`. Type `int`. Range [0, 255].
+- `custom_gradient`. Custom gradient configuration. Type `dict`.
+  - `enabled`. Whether to enable custom gradient. Type `bool`.
+  - `coefficients`. Gradient polynomial coefficients. Type `list[float]`.
+  - `exponents`. Gradient polynomial coefficients. Type `list[float]`.
 
 # Result Files
 

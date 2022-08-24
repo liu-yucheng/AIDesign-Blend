@@ -233,18 +233,34 @@ class Blender:
         # Parse frags_grid
 
         frags_grid_key = "frags_grid"
+        pad_color_key = "padding_color_overrides"
         save_frags_grid: bool = self._config[frags_grid_key]["save"]
         frags_grid_pad: int = self._config[frags_grid_key]["padding"]
-        frags_grid_pad_bright: int = self._config[frags_grid_key]["padding_brightness"]
+        frags_grid_pad_color_applied: bool = self._config[frags_grid_key][pad_color_key]["apply"]
+
+        if frags_grid_pad_color_applied:
+            frags_grid_pad_red: int = self._config[frags_grid_key][pad_color_key]["red"]
+            frags_grid_pad_green: int = self._config[frags_grid_key][pad_color_key]["green"]
+            frags_grid_pad_blue: int = self._config[frags_grid_key][pad_color_key]["blue"]
+        else:
+            frags_grid_pad_bright: int = self._config[frags_grid_key]["padding_brightness"]
+            frags_grid_pad_red = frags_grid_pad_bright
+            frags_grid_pad_green = frags_grid_pad_bright
+            frags_grid_pad_blue = frags_grid_pad_bright
+        # end if
+
         c.save_frags_grid = save_frags_grid
         c.frags_grid_pad = frags_grid_pad
-        c.frags_grid_pad_bright = frags_grid_pad_bright
+        c.frags_grid_pad_red = frags_grid_pad_red
+        c.frags_grid_pad_green = frags_grid_pad_green
+        c.frags_grid_pad_blue = frags_grid_pad_blue
 
         info = str(
-            f"Fragments grid:"
-            f"  Save: {save_frags_grid}"
-            f"  Padding: {frags_grid_pad}"
-            f"  Padding brightness: {frags_grid_pad_bright}"
+            f"Fragments grid:\n"
+            f"  Save: {save_frags_grid}\n"
+            f"  Padding: {frags_grid_pad}\n"
+            f"  Padding color override applied: {frags_grid_pad_color_applied}\n"
+            f"  Padding color:  Red: {frags_grid_pad_red}  Green: {frags_grid_pad_green}  Blue: {frags_grid_pad_blue}"
         )
 
         self.logln(info, 1)
@@ -893,7 +909,15 @@ class Blender:
 
             self.logln(info, 1)
             frags_grid: _np_ndarray = c.frags_grid
-            frags_grid.fill(c.frags_grid_pad_bright)
+
+            frags_grid_red = frags_grid[:, :, 0]
+            frags_grid_green = frags_grid[:, :, 1]
+            frags_grid_blue = frags_grid[:, :, 2]
+
+            frags_grid_red.fill(c.frags_grid_pad_red)
+            frags_grid_green.fill(c.frags_grid_pad_green)
+            frags_grid_blue.fill(c.frags_grid_pad_blue)
+
             block_total = c.y_frag_count * c.x_frag_count
             cur_block = 0
 

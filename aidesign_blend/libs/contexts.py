@@ -50,8 +50,12 @@ class BlenderContext(Context):
     """Save fragments grid."""
     frags_grid_pad: int = None
     """Fragments grid padding."""
-    frags_grid_pad_bright: int = None
-    """Fragments grid padding brightness."""
+    frags_grid_pad_red = None
+    """Fragments grid padding red."""
+    frags_grid_pad_green = None
+    """Fragments grid padding green."""
+    frags_grid_pad_blue = None
+    """Fragments grid padding blue."""
 
     custom_grad_enabled: bool = None
     """Custom gradient function enabled."""

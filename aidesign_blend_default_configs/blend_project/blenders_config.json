@@ -16,7 +16,13 @@
     "frags_grid": {
         "save": false,
         "padding": 2,
-        "padding_brightness": 16
+        "padding_brightness": 16,
+        "padding_color_overrides": {
+            "apply": false,
+            "red": 255,
+            "green": 255,
+            "blue": 255
+        }
     },
     "custom_gradient": {
         "enabled": false,
